@@ -14,10 +14,10 @@ public class OptimizedStateMachine {
   public List<Transition> transitions = new ArrayList<>();
 
   public String transitionsToString() {
-    String result = "";
+    StringBuilder result = new StringBuilder();
     for (Transition t : transitions)
-      result += t;
-    return result;
+      result.append(t);
+    return result.toString();
   }
 
   public String toString() {
@@ -35,11 +35,11 @@ public class OptimizedStateMachine {
 
   public static class Transition {
     public String toString() {
-      String result = String.format("%s {\n", currentState);
+      StringBuilder result = new StringBuilder(String.format("%s {\n", currentState));
       for (SubTransition st : subTransitions)
-        result += st.toString();
-      result += "}\n";
-      return result;
+        result.append(st.toString());
+      result.append("}\n");
+      return result.toString();
     }
 
     public String currentState;
@@ -52,11 +52,11 @@ public class OptimizedStateMachine {
     }
 
     private String actionsToString() {
-      String result = "";
+      StringBuilder result = new StringBuilder();
       if (actions.size() == 0)
-        return result;
+        return result.toString();
       for (String action : actions)
-        result += action + " ";
+        result.append(action).append(" ");
       return result.substring(0, result.length()-1);
     }
 

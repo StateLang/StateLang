@@ -14,11 +14,10 @@ public class SemanticStateMachine {
 
   public String toString() {
     return String.format(
-      "" +
-        "Actions: %s\n" +
-        "FSM: %s\n" +
-        "Initial: %s" +
-        "%s",
+            """
+                    Actions: %s
+                    FSM: %s
+                    Initial: %s%s""",
       actionClass, fsmName, initialState.name, statesToString());
 
   }
@@ -28,11 +27,12 @@ public class SemanticStateMachine {
   }
 
   public String statesToString() {
-    String statesString = "{";
+    StringBuilder statesString = new StringBuilder("{");
     for (SemanticState s : states.values()) {
-      statesString += s.toString();
+      statesString.append(s.toString());
     }
-    return statesString + "}\n";
+    statesString.append("}\n");
+    return statesString.toString();
   }
 
   public static class SemanticState implements Comparable<SemanticState> {
@@ -48,8 +48,7 @@ public class SemanticStateMachine {
     }
 
     public boolean equals(Object obj) {
-      if (obj instanceof SemanticState) {
-        SemanticState other = (SemanticState) obj;
+      if (obj instanceof SemanticState other) {
         return
           Objects.equals(other.name, name) &&
             Objects.equals(other.entryActions, entryActions) &&
@@ -69,11 +68,11 @@ public class SemanticStateMachine {
     }
 
     private String makeTransitionStrings() {
-      String transitionStrings = "";
+      StringBuilder transitionStrings = new StringBuilder();
       for (SemanticTransition st : transitions)
-        transitionStrings += makeTransitionString(st);
+        transitionStrings.append(makeTransitionString(st));
 
-      return transitionStrings;
+      return transitionStrings.toString();
     }
 
     private String makeTransitionString(SemanticTransition st) {
@@ -81,13 +80,13 @@ public class SemanticStateMachine {
     }
 
     private String makeActions(SemanticTransition st) {
-      String actions = "";
+      StringBuilder actions = new StringBuilder();
       boolean firstAction = true;
       for (String action : st.actions) {
-        actions += (firstAction ? "" : " ") + action;
+        actions.append(firstAction ? "" : " ").append(action);
         firstAction = false;
       }
-      return actions;
+      return actions.toString();
     }
 
     private String makeNextStateName(SemanticTransition st) {
@@ -95,15 +94,15 @@ public class SemanticStateMachine {
     }
 
     private String makeStateNameWithAdornments() {
-      String stateName = "";
-      stateName += abstractState ? ("(" + name + ")") : name;
+      StringBuilder stateName = new StringBuilder();
+      stateName.append(abstractState ? ("(" + name + ")") : name);
       for (SemanticState superState : superStates)
-        stateName += " :" + superState.name;
+        stateName.append(" :").append(superState.name);
       for (String entryAction : entryActions)
-        stateName += " <" + entryAction;
+        stateName.append(" <").append(entryAction);
       for (String exitAction : exitActions)
-        stateName += " >" + exitAction;
-      return stateName;
+        stateName.append(" >").append(exitAction);
+      return stateName.toString();
     }
 
     public int compareTo(SemanticState s) {
@@ -127,7 +126,7 @@ public class SemanticStateMachine {
       CONFLICTING_SUPERSTATES,
     }
 
-    private ID id;
+    private final ID id;
     private Object extra;
 
     public AnalysisError(ID id) {
@@ -148,10 +147,9 @@ public class SemanticStateMachine {
     }
 
     public boolean equals(Object obj) {
-      if (obj instanceof AnalysisError) {
-        AnalysisError other = (AnalysisError) obj;
+      if (obj instanceof AnalysisError other)
         return id == other.id && Objects.equals(extra, other.extra);
-      }
+
       return false;
     }
   }

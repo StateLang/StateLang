@@ -123,14 +123,14 @@ public class FsmSyntax {
   }
 
   private String formatStateName(StateSpec stateSpec) {
-    String stateName = String.format(stateSpec.abstractState ? "(%s)" : "%s", stateSpec.name);
+    StringBuilder stateName = new StringBuilder(String.format(stateSpec.abstractState ? "(%s)" : "%s", stateSpec.name));
     for (String superState : stateSpec.superStates)
-      stateName += ":" + superState;
+      stateName.append(":").append(superState);
     for (String entryAction : stateSpec.entryActions)
-      stateName += " <" + entryAction;
+      stateName.append(" <").append(entryAction);
     for (String exitAction : stateSpec.exitActions)
-      stateName += " >" + exitAction;
-    return stateName;
+      stateName.append(" >").append(exitAction);
+    return stateName.toString();
   }
 
   private String formatSubTransitions(Transition transition) {

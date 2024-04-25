@@ -20,7 +20,7 @@ public class IntegerArgumentMarshaler implements ArgumentMarshaler {
   }
 
   public static int getValue(ArgumentMarshaler am) {
-    if (am != null && am instanceof IntegerArgumentMarshaler)
+    if (am instanceof IntegerArgumentMarshaler)
       return ((IntegerArgumentMarshaler) am).intValue;
     else
       return 0;

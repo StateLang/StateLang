@@ -5,13 +5,13 @@ import java.util.List;
 
 public class Utilities {
   public static String commaList(List<String> names) {
-    String commaList = "";
+    StringBuilder commaList = new StringBuilder();
     boolean first = true;
     for (String name : names) {
-      commaList += (first ? "" : ",") + name;
+      commaList.append(first ? "" : ",").append(name);
       first = false;
     }
-    return commaList;
+    return commaList.toString();
   }
 
   public static List<String> addPrefix(String prefix, List<String> list) {
@@ -22,6 +22,8 @@ public class Utilities {
   }
 
   public static String compressWhiteSpace(String s) {
-    return s.replaceAll("\\n+", "\n").replaceAll("[\t ]+", " ").replaceAll(" *\n *", "\n");
+    return s.replaceAll("\\n+", "\n")
+            .replaceAll("[\t ]+", " ")
+            .replaceAll(" *\n *", "\n");
   }
 }
