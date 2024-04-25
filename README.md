@@ -313,7 +313,10 @@ The Backus-Naur form (BNF) of the SMC source code is:
     <event> :: <name> | "-"
 
 ### License
-You may use this program and source code for any purpose at all at your own risk.  It is not copyrighted.  Have fun!
+This project is licensed under the [GNU Lesser General Public License version 2.1 (LGPL 2.1)](LICENSE).
+
+#### GNU Lesser General Public License version 2.1 (LGPL 2.1)
+This software is licensed under the LGPL 2.1, allowing you to use, modify, and distribute it under certain conditions. You are free to use this software for both commercial and non-commercial purposes. For more details, please see the [LICENSE](LICENSE) file.
 
 
 
