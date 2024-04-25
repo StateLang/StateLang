@@ -64,6 +64,7 @@ Here is a UML diagram that depicts the situation.  The programmer writes the `us
 ### Generated Java Code
 Here is the Java code that SMC will generate for this state machine.  It is an abstract class that provides a simple nested switch/case implementation, a set of public event functions, and a set of protected abstract methods for the action functions.
 
+```java
     public abstract class Turnstile {
     	public abstract void unhandledTransition(String state, String event);
         private enum State {Locked,Unlocked}
@@ -107,7 +108,8 @@ Here is the Java code that SMC will generate for this state machine.  It is an a
     	protected abstract void alarm();
     	protected abstract void lock();
     }
-    
+```
+
 ### Actions Interface
 It is often more convenient to express the abstract _Action_ functions as an interface, or an abstract class.    We can accomplish this by adding the `Actions:` header to the state machine description.  
 
