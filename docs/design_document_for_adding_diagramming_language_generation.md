@@ -51,7 +51,7 @@ There are two Semantic Data Structures produced by StateLang:
       non-human-intuitive, states.  
       Example:  
       This is the human-intuitive code -I know this is not look like that 
-      but this because I didn't use a real-world example-:
+      but this is because I didn't use a real-world example-:
       ```
       {  
         (ib1) >ib1x - - -  
