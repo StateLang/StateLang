@@ -53,9 +53,8 @@ public class SMC {
       FsmSyntax fsm = compile(getSourceCode());
       int syntaxErrorCount = reportSyntaxErrors(fsm);
 
-      if (syntaxErrorCount == 0) {
+      if (syntaxErrorCount == 0)
         generateCode(optimize(fsm));
-      }
     }
 
     private void extractCommandLineArguments() {

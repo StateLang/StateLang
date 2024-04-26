@@ -36,7 +36,6 @@ public class JavaNestedSwitchCaseImplementer implements NSCNodeVisitor {
 
   public void visit(NSCNode.EnumNode enumNode) {
     output += String.format("private enum %s {%s}\n", enumNode.name, Utilities.commaList(enumNode.enumerators));
-
   }
 
   public void visit(NSCNode.StatePropertyNode statePropertyNode) {

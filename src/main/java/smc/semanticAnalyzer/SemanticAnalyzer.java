@@ -146,8 +146,7 @@ public class SemanticAnalyzer {
   private Set<String> getSuperStates(FsmSyntax fsm) {
     Set<String> superStates = new HashSet<>();
     for (Transition t : fsm.logic)
-      for (String superState : t.state.superStates)
-        superStates.add(superState);
+      superStates.addAll(t.state.superStates);
     return superStates;
   }
 
@@ -292,8 +291,7 @@ public class SemanticAnalyzer {
       }
 
       public boolean equals(Object obj) {
-        if (obj instanceof TransitionTuple) {
-          TransitionTuple tt = (TransitionTuple) obj;
+        if (obj instanceof TransitionTuple tt) {
           return
             Objects.equals(currentState, tt.currentState) &&
               Objects.equals(event, tt.event) &&

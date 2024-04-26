@@ -32,10 +32,14 @@ public abstract class CodeGenerator {
   }
 
   public void generate() throws IOException {
-    NSCGenerator nscGenerator = new NSCGenerator();
-    nscGenerator.generate(optimizedStateMachine).accept(getImplementer());
+    if (flags.containsKey("isOptimized"))
+      generate(Boolean.parseBoolean(flags.get("isOptimized")));
+    else
+      generate(true);
     writeFiles();
   }
+
+  protected abstract void generate(boolean isOptimized);
 
   protected abstract NSCNodeVisitor getImplementer();
 

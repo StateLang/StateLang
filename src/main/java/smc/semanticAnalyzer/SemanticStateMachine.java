@@ -28,9 +28,8 @@ public class SemanticStateMachine {
 
   public String statesToString() {
     StringBuilder statesString = new StringBuilder("{");
-    for (SemanticState s : states.values()) {
+    for (SemanticState s : states.values())
       statesString.append(s.toString());
-    }
     statesString.append("}\n");
     return statesString.toString();
   }
