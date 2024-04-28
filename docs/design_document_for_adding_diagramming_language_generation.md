@@ -238,7 +238,7 @@ This is the proposed solution:
 ## Implementation Plan
 **Phase 1**: Make `CodeGenerator` more abstract (i.e., implement
 code-style-agnostic feature).    
-**Phase 2**: Fix the entry- and exit-actions behaviour
+**Phase 2**: Fix the entry- and exit-actions behaviour.  
 **Phase 3**: **Design** and implement `DiagramNode` and 
 `DiagramNodeVisitor` according to PlantUML and Mermaid syntax.   
 **Phase 4**: Create `PlantUMLDiagramGenerator`, 
