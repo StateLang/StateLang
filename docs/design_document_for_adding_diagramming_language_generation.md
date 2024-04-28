@@ -51,7 +51,7 @@ There are two Semantic Data Structures produced by StateLang:
       non-human-intuitive, states.  
       Example:  
       This is the human-intuitive code -I know this is not look like that 
-      but this because I didn't use a real-world example-:
+      but this is because I didn't use a real-world example-:
       ```
       {  
         (ib1) >ib1x - - -  
@@ -81,7 +81,7 @@ There are two Semantic Data Structures produced by StateLang:
 | **Entry- and Exit-Actions** <br>(aka, description) 	 | ❌ (We can use `\n` to write description line)                                                                         	 | [✅ See](https://plantuml.com/state-diagram#7d9e703ac421ea25) 	 |
 | **Super State**<br>(aka, Composite State)          	 | [✅ See](https://mermaid.js.org/syntax/stateDiagram.html#composite-states) 	                                             | [✅ See](https://plantuml.com/state-diagram#a70cc614da79064a) 	 |
 
-- **Entry- and Exit-Actions** (aka, description)
+- **Entry- and Exit-Actions** (aka, description)  
   ![Entry- and Exit-Actions](imgs/entry-exit-actions.png)
 - **Super State** (aka, Composite State)      
   ![Super State](imgs/super-state.png)
