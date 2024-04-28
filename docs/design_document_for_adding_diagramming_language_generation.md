@@ -359,5 +359,5 @@ code-style-agnostic feature).
 **Phase 4**: Create `PlantUMLDiagramGenerator`, 
 `MermaidDiagramGenerator`, `OptimizedDiagramGenerator`, 
 `NonOptimizedDiagramGenerator`, `PlantUMLDiagramImplementer` and
-`MermaidDiagramImplementer`. (These can be created in parallel)
-**Phase 5**: Implement implicit super state and super states intersection warnings and elimination
+`MermaidDiagramImplementer`. (These can be created in parallel)  
+**Phase 5**: Implement implicit super state and super states intersection warnings and elimination.
