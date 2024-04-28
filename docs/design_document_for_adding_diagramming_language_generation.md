@@ -130,6 +130,9 @@ The original cc_smc source code is allowing you to add new language by:
    `SemanticStateMachine` without optimizing is useful in diagramming 
    as it's more human-intuitive.
 
+3. > The Entry- and Exit-actions of superstates are inherited by their derivative states.  
+   > — CC_SMC `README.md`
+
 ## Goals
 ### Code-style-agnostic `CodeGenerator`
 Make `CodeGenerator` base class not depending on specific `XXXGenerator` 
@@ -168,9 +171,22 @@ a non-optimized diagram generation with PlantUML, no need for ugly
 unused feature, it's low priority and can be implemented by the 
 community in the future.
 
+### Fix the entry- and exit-actions behaviour
+The behaviour of entry- and exit-actions should be as specified in
+
+> Superstates can have entry, exit, and special events the same way that normal
+states can have them. Figure 10-6 shows an FSM in which there are exit and entry
+actions in both super states and sub states. As the FSM transitions from Some State into
+Sub it first invokes the enterSuper action, followed by the enterSub action. Likewise,
+if the FSM transitions out of Sub2 back to Some State, it first invokes exitSub2 and
+then exitSuper. **However, since the e2 transition from Sub to Sub2 does not exit the
+superstate, it simply invokes exitSub and enterSub2**.  
+> ![10-6 Hierarchical invocation of Entry and Exit actions](imgs/ent-ext-act.png)  
+> — Uncle Bob, UML for Java Programmers
+
 ## Survey
 In this survey, I'll discuss "Goals > Optimization-agnostic 
-`CodeGenerator`" in detail, the other two goals will be designed
+`CodeGenerator`" in detail, the other three goals will be designed
 directly in the "Design" section because they are pretty easy.
 
 ### 1. `DiagramGenerator`
@@ -222,9 +238,10 @@ This is the proposed solution:
 ## Implementation Plan
 **Phase 1**: Make `CodeGenerator` more abstract (i.e., implement
 code-style-agnostic feature).    
-**Phase 2**: **Design** and implement `DiagramNode` and 
+**Phase 2**: Fix the entry- and exit-actions behaviour
+**Phase 3**: **Design** and implement `DiagramNode` and 
 `DiagramNodeVisitor` according to PlantUML and Mermaid syntax.   
-**Phase 3**: Create `PlantUMLDiagramGenerator`, 
+**Phase 4**: Create `PlantUMLDiagramGenerator`, 
 `MermaidDiagramGenerator`, `OptimizedDiagramGenerator`, 
 `NonOptimizedDiagramGenerator`, `PlantUMLDiagramImplementer` and
 `MermaidDiagramImplementer`. (These can be created in parallel)
