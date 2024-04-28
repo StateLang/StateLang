@@ -99,6 +99,60 @@ There are two Semantic Data Structures produced by StateLang:
   state along with basic elements like state, event, next state and 
   actions.
 
+### Super/composite states intersection 
+Composite states intersection occurs when two or more composite states
+intersects in the same sub state(s). This is not recommended in State
+Transition Diagram and is not supported in PlantUML. This is an 
+example, `Compostite1` and `Composite2` are the two intersected 
+composite states and `C` is the intersection sub state.
+![composite states intersection](imgs/intersect.png)
+
+### Implicit super state
+If `X` is a super state of Y, where Y is a set of sub states, and `Z`
+is a super state of subset of Y then `X` is a super state of `Z`.  
+This is an example of implicit super state in CC_SMC:  
+```
+(X) {
+    // Transitions ...
+}
+(Z) {
+    // Transitions ...
+}
+
+// Y set: 
+Y1:Z:X {
+    // Transitions ...
+}
+Y2:X:Z {
+    // Transitions ...
+}
+Y3:X {
+    // Transitions ...
+}
+```
+This is an example of the equivalent explicit super state in CC_SMC:
+```
+(X) {
+    // Transitions ...
+}
+(Z):X {
+    // Transitions ...
+}
+
+// Y set: 
+Y1:Z {
+    // Transitions ...
+}
+Y2:Z {
+    // Transitions ...
+}
+Y3:X {
+    // Transitions ...
+}
+```
+Both of codes will be represented as follows:  
+![implicit super state](imgs/implicit.png)
+
 ## Context and History
 The original cc_smc source code is allowing you to add new language by:   
 1. Create `XXXNode` and `XXXNodeVisitor`.
@@ -132,6 +186,27 @@ The original cc_smc source code is allowing you to add new language by:
 
 3. > The Entry- and Exit-actions of superstates are inherited by their derivative states.  
    > — CC_SMC `README.md`
+
+4. Super/composite states intersection is syntactically and
+   semantically allowed in CC_SMC and this is an example in CC_SMC:  
+   ```
+   // ...
+   Initial: A
+   {
+     A - B -
+     (Composite1) - E -
+     (Composite2) - F -
+     B:Composite1 - C -
+     C:Composite1:Composite2 - D -
+     D:Composite2 - - -
+     F - E -
+     E - - -
+   }
+   ```  
+   And this is its diagram representation:  
+   ![composite states intersection](imgs/intersect.png)
+
+5. CC_SMC is allowed implicit super state. 
 
 ## Goals
 ### Code-style-agnostic `CodeGenerator`
@@ -175,55 +250,82 @@ community in the future.
 The behaviour of entry- and exit-actions should be as specified in
 
 > Superstates can have entry, exit, and special events the same way that normal
-states can have them. Figure 10-6 shows an FSM in which there are exit and entry
-actions in both super states and sub states. As the FSM transitions from Some State into
-Sub it first invokes the enterSuper action, followed by the enterSub action. Likewise,
-if the FSM transitions out of Sub2 back to Some State, it first invokes exitSub2 and
-then exitSuper. **However, since the e2 transition from Sub to Sub2 does not exit the
+> states can have them. Figure 10-6 shows an FSM in which there are exit and entry
+> actions in both super states and sub states. As the FSM transitions from Some State into
+> Sub it first invokes the enterSuper action, followed by the enterSub action. Likewise,
+> if the FSM transitions out of Sub2 back to Some State, it first invokes exitSub2 and
+> then exitSuper. **However, since the e2 transition from Sub to Sub2 does not exit the
 superstate, it simply invokes exitSub and enterSub2**.  
 > ![10-6 Hierarchical invocation of Entry and Exit actions](imgs/ent-ext-act.png)  
 > — Uncle Bob, UML for Java Programmers
 
+### Super/composite states intersection warning and elimination
+Warn the user that his code has composite states intersection and 
+eliminate this intersection as follows:  
+```
+// ...
+Initial: A
+{
+ A - B -
+ (Composite1) - E -
+ (Composite2) - F -
+ B:Composite1 - C -
+ C:Composite1:Composite2 - D -
+ D:Composite2 - - -
+ F - E -
+ E - - -
+}
+``` 
+This will be eliminated to:  
+```
+// ...
+Initial: A
+{
+ A - B -
+ (Composite1) - E -
+ (Composite2) - F -
+ B:Composite1 - C -
+ C {
+    - D -
+    - E -
+    - F -
+ }
+ D:Composite2 - - -
+ F - E -
+ E - - -
+}
+``` 
+
+### Implicit super/composite state warning and elimination
+Warn the user that there is implicit super state and eliminate
+it as in "Important Backgrounds > Implicit super state" code snippets.
+
 ## Survey
 In this survey, I'll discuss "Goals > Optimization-agnostic 
-`CodeGenerator`" in detail, the other three goals will be designed
-directly in the "Design" section because they are pretty easy.
+`CodeGenerator`" and "Goals > Implicit super/composite state 
+warning and elimination" in detail, the other three goals will 
+be designed directly in the "Design" section because they are 
+pretty easy.
 
-### 1. `DiagramGenerator`
-![1st Method](imgs/method1.png)
-#### Pros
-- Less code, same source code for optimized and non-optimized diagrams
-  generation.
-- Preserve abstraction.
-- Use same implementer for both.
-#### Cons
-- Non-optimized code for NSC-style, as an example, cannot be 
-  generated because there is no concepts like composite state in this
-  style, so this will violate LSP or SRP, depending on the implementation.
-- While it appears as it preserves Open-Closed Principle but the fact
-  is that there are and will be **only** two cases either optimized or 
-  non-optimized state machine DSs, so no need for this extra polymorphic
-  behaviour.
-- It's hard to generate state machine DSs that has the same interface
-  and same component interfaces because for example state in 
-  non-optimized state machine DS has more properties than optimized 
-  one and this may violate LSP.
-  
-### 2. `OptimizedDiagramGenerator` and `NonOptimizedDiagramGenerator`
-![2nd Method](imgs/method2.png)
-#### Pros
-- Maintain SRP.
-- Its behaviour is polymorphic for some extent.
-- Use same implementer for both.
-#### Cons
-- Write a code x2 but this may consider as a pro due to avoiding 
-  handling edge cases for both state machine DSs, if we couldn't
-  reach a proper abstraction, this may result in SRP violation.
-
+### Optimization-agnostic `CodeGenerator`
+| 	              | `DiagramGenerator`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            	 | `OptimizedDiagramGenerator` and `NonOptimizedDiagramGenerator`                                                                                                                                	 |
+|----------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 	              | ![1st Method](imgs/method1.png)                                                                                                                                                                                                                                                                                                                        	                                                                                                                                                                                                                                                                                                                        | ![2nd Method](imgs/method2.png)                                                                                	                                                                                |
+| **Pros**     	 | - Less code, same source code for optimized and non-optimized diagrams generation.<br>- Preserve abstraction.<br>- Use same implementer for both.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             	 | - Maintain SRP.<br>- Its behaviour is polymorphic for some extent.<br>- Use same implementer for both.                                                                                        	 |
+| **Cons**     	 | - Non-optimized code for NSC-style, as an example, cannot be generated because there is no concepts like composite state in this style, so this will violate LSP or SRP, depending on the implementation.<br>- While it appears as it preserves Open-Closed Principle but the fact is that there are and will be **only** two cases either optimized or non-optimized state machine DSs, so no need for this extra polymorphic behaviour.<br>- It's hard to generate state machine DSs that has the same interface and same component interfaces because for example state in non-optimized state machine DS has more properties than optimized one and this may violate LSP. 	 | - Write a code x2 but this may consider as a pro due to avoiding handling edge cases for both state machine DSs, if we couldn't reach a proper abstraction, this may result in SRP violation. 	 |
+| **Selected** 	 | <center>❌</center>                                                                                                                                                                                                                                                                                                                                       	                                                                                                                                                                                                                                                                                                                      | <center>✅</center>                                                                                               	                                                                              |
 **Errata**: 
 I mistakenly typed `PlantUMLCodeGenerator` and `MermaidCodeGenerator`
 in the previous images, however it should be `PlantUMLDiagramGenerator`
 and `MermaidDiagramGenerator`.
+
+### Implicit super/composite state warning and elimination
+| 	                      | Create `DiagramOptimizer` and `DiagramStateMachine` AST                                                                                                         	                   | Edit `SemanticAnalyzer` and use `SemanticStateMachine`                                                                                                                                                                                                                	                  | Create `DiagramOptimizer` and use `OptimizedStateMachine` AST 	                   |
+|------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------|
+| **Difficulty**       	 | <center>Hard (more code)</center>                                                                                                                                                 	 | <center>Easy (less code)</center>                                                                                                                                                                                                                                                      	 | <center>Medium</center>                                                        	  |
+| **SRP preservation** 	 | <center>✅</center>                                                                                                                                                                	 | <center>✅</center><br>**Why?**<br>The role of the `SemanticAnalyzer` are to:<br>1. identify and report issues (errors and warnings) like the super classes intersection.<br>2. generate standard "code" -actually AST- that is easier to be processed by the optimizer or generator.  	  | <center>😐 Questioned</center>                                                  	 |
+| **OCP preservation** 	 | <center>❌</center> <br>**Why?**<br>Because each time we want to add new language, we would create an optimizer and AST for it and these should be independent of target language. 	 | <center>✅</center>                                                                                                                                                                                                                                                                    	  | <center>❌ (same as 1st column)</center>                                        	  |
+| **Selected**         	 | <center>❌</center>                                                                                                                                                                	 | <center>✅</center>                                                                                                                                                                                                                                                                     	 | <center>❌</center>                                                             	  |
 
 ## Design
 ### Code-style-agnostic `CodeGenerator`
@@ -231,9 +333,21 @@ This is the current diagram:
 ![Problem1](imgs/p1.png)
 And this is the proposed solution:
 ![Sol1](imgs/sol1.png)
+
 ### Optimization-agnostic `CodeGenerator`
 This is the proposed solution:
 ![Sol2](imgs/method2.png)
+
+### Super state warnings
+This is an abstract set of steps of how to achieve this:  
+1. Build inheritance tree.
+2. Eliminate and warn for implicit super state.
+3. Eliminate and warn for super states intersection. 
+4. Sort the states as follows:
+   1. Ascending-ly from the ones that has lower super states to the
+      ones that have higher.
+   2. Put the abstract states at the end and sort them according to
+      no. 1.
 
 ## Implementation Plan
 **Phase 1**: Make `CodeGenerator` more abstract (i.e., implement
@@ -245,3 +359,4 @@ code-style-agnostic feature).
 `MermaidDiagramGenerator`, `OptimizedDiagramGenerator`, 
 `NonOptimizedDiagramGenerator`, `PlantUMLDiagramImplementer` and
 `MermaidDiagramImplementer`. (These can be created in parallel)
+**Phase 5**: Implement implicit super state and super states intersection warnings and elimination
