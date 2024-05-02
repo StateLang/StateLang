@@ -402,7 +402,13 @@ public class SemanticAnalyzerTest {
 
     @Test
     public void superStatesAreAggregated() throws Exception {
-      assertSyntaxToAst("{s:b1 e1 s a s:b2 e2 s a (b1) e s - (b2) e s -}",
+      assertSyntaxToAst("" +
+                      "{" +
+                      "s:b1 e1 s a " +
+                      "s:b2 e2 s a " +
+                      "(b1) e s - " +
+                      "(b2) e s -" +
+                      "}",
               """
                       {
                         (b1) {
@@ -449,12 +455,13 @@ public class SemanticAnalyzerTest {
     @Test
     public void entryAndExitActionsRemainInOrder() throws Exception {
       assertSyntaxToAst("{s <{d o} <g >{c a} >t e s a}",
-        "" +
-          "{\n" +
-          "  s <d <o <g >c >a >t {\n" +
-          "    e s {a}\n" +
-          "  }\n" +
-          "}\n");
+              """
+                      {
+                        s <d <o <g >c >a >t {
+                          e s {a}
+                        }
+                      }
+                      """);
     }
   } //Logic
 
