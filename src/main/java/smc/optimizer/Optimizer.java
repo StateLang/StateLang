@@ -115,6 +115,7 @@ public class Optimizer {
     addAllStatesInHiearchyLeafFirst(state, hierarchy);
     return hierarchy.contains(superState);
   }
+  
   private void addAllStatesInHiearchyLeafFirst(SemanticState state, LinkedHashSet<SemanticState> hierarchy) {
     for (SemanticState superState : state.superStates)
         addAllStatesInHiearchyLeafFirst(superState, hierarchy);
