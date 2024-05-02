@@ -23,13 +23,9 @@ public class CppCodeGenerator extends CodeGenerator {
   protected void generate(boolean isOptimized) {
     if (isOptimized) {
       NSCGenerator nscGenerator = new NSCGenerator();
-      nscGenerator.generate(optimizedStateMachine).accept(getImplementer());
+      nscGenerator.generate(optimizedStateMachine).accept(implementer);
     } else
       throw new RuntimeException("Cannot produce non-optimized code for this language!");
-  }
-
-  protected NSCNodeVisitor getImplementer() {
-    return implementer;
   }
 
   public void writeFiles() throws IOException {
