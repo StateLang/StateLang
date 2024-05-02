@@ -95,7 +95,7 @@ public class Optimizer {
         LinkedHashSet<SemanticState> hierarchy = new LinkedHashSet<>();
         addAllStatesInHiearchyLeafFirst(entryState, hierarchy);
         for (SemanticState superState : hierarchy)
-          if(!isSuperStateOf(superState,currentState))
+          if (!isSuperStateOf(superState, currentState))
             subTransition.actions.addAll(superState.entryActions);
       }
 
