@@ -9,13 +9,19 @@ public class NonOptimizedDiagramGenerator {
   private List<DiagramNode.StateNode> stateNodes;
   private List<DiagramNode.TransitionNode> transitionNodes;
 
+	public NonOptimizedDiagramGenerator() {
+		stateNodes = new ArrayList<>();
+		transitionNodes = new ArrayList<>();
+	}
+
   public DiagramNode generate(SemanticStateMachine sm) {
     prepareFsm(sm);
-    return makeFsmNode(sm);
+    return makeFsmNode();
   }
 
   private void prepareFsm(SemanticStateMachine sm) {
-    for (SemanticStateMachine.SemanticState state : sm.states.values()) {
+	  addTransition("[*]", "", sm.initialState.name, new ArrayList<>());
+	  for (SemanticStateMachine.SemanticState state : sm.states.values()) {
       addState(state);
       addTransitions(sm, state);
     }
@@ -35,7 +41,6 @@ public class NonOptimizedDiagramGenerator {
   }
 
   private void addTransitions(SemanticStateMachine sm, SemanticStateMachine.SemanticState state) {
-    addTransition("[*]", "", sm.initialState.name, new ArrayList<>());
     for (SemanticStateMachine.SemanticTransition tr : state.transitions)
       addTransition(state.name, tr.event, tr.nextState.name, tr.actions);
   }
@@ -49,7 +54,7 @@ public class NonOptimizedDiagramGenerator {
     ));
   }
 
-  private DiagramNode makeFsmNode(SemanticStateMachine sm) {
+  private DiagramNode makeFsmNode() {
     return new DiagramNode.FSMNode(stateNodes, transitionNodes);
   }
 }
