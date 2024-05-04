@@ -174,7 +174,7 @@ public class OptimizerTest {
     @Test
     public void diamondSuperStateEntryAndExitActionsAreAdded() throws Exception {
       assertOptimization(
-              "{  (ib1) >ib1x - - -  (ib2) : ib1 >ib2x - - -  (ib3) : ib1 >ib3x - - -  (sb1) <sb1n - - -  (sb2) :sb1 <sb2n - - -  (sb3) :sb1 <sb3n - - -  i:ib2 :ib3 >x e  s a s :sb2 :sb3 <n e i -}",
+              "{  (ib1) >ib1x - - -  (ib2) : ib1 >ib2x - - -  (ib3) : ib1 >ib3x - - -  (sb1) <sb1n - - -  (sb2) :sb1 <sb2n - - -  (sb3) :sb1 <sb3n - - -  i:ib2 :ib3 >x e s a  s :sb2 :sb3 <n e i -}",
               """
                       i {
                         e s {x ib3x ib2x ib1x sb1n sb2n sb3n n a}
