@@ -106,7 +106,7 @@ public class OptimizerTest {
     @Test
     public void entryFunctionsAdded() throws Exception {
       assertOptimization(
-              "{ i e s a1 i e2 s a2 s <n1 <n2 e i -}",
+              "{  i e s a1  i e2 s a2  s <n1 <n2 e i -}",
               """
                       i {
                         e s {n1 n2 a1}
