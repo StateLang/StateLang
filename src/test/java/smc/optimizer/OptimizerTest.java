@@ -184,6 +184,42 @@ public class OptimizerTest {
                       }
                       """);
     }
+
+    @Test
+    public void exitActionsOfSuperStateAreNotAddedIfSameSuperState() throws Exception {
+      assertOptimization(
+              "{" +
+                      "  (sb) >sbn1 >sbn2 - - -" +
+                      "  i:sb >x e s a" +
+                      "  s:sb >n e i -" +
+                      "}",
+              """
+                      i {
+                        e s {x a}
+                      }
+                      s {
+                        e i {n}
+                      }     
+                      """);
+    }
+
+    @Test
+    public void entryActionsOfSuperStateAreNotAddedIfSameSuperState() throws Exception {
+      assertOptimization(
+              "{" +
+                      "  (sb) <sbn1 <sbn2 - - -" +
+                      "  i:sb <x e s a" +
+                      "  s:sb <n e i -" +
+                      "}",
+              """
+                      i {
+                        e s {n a}
+                      }
+                      s {
+                        e i {x}
+                      }
+                      """);
+    }
   } // Entry and Exit Actions
 
   public class superStateTransitions {
@@ -327,6 +363,38 @@ public class OptimizerTest {
   }// Super State Transitions
 
   public class AcceptanceTests {
+    @Test
+    public void exitAndEntryActionsSuperState() throws Exception {
+      assertOptimization(
+              "{" +
+                      "  (sb) <sbn >sbx - - - " +
+                      "  (ib) <ibn >ibx - - - " +
+                      "  s0:sb <s0n >s0x { " +
+                      "     e0 s a0 " +
+                      "  } " +
+                      "  i:ib <in >ix { " +
+                      "     e3 s a2 " +
+                      "     e2 i1 a3 " +
+                      "  } " +
+                      "  i1:ib <i1n >i1x e1 s0 a1 " +
+                      "  s:sb <sn >sx - - - " +
+                      " } ",
+              """
+                      i {
+                        e3 s {ix ibx sbn sn a2}
+                        e2 i1 {ix i1n a3}
+                      }
+                      i1 {
+                        e1 s0 {i1x ibx sbn s0n a1}
+                      }
+                      s {
+                      }
+                      s0 {
+                        e0 s {s0x sn a0}
+                      }
+                      """);
+    }
+
     @Test
     public void turnstyle3() throws Exception {
       OptimizedStateMachine sm = produceStateMachine(
