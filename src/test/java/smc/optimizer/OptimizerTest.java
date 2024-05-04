@@ -154,11 +154,11 @@ public class OptimizerTest {
           "  s:sb <n e i -" +
           "}",
               """
-                      i {
-                        e s {x ibx1 ibx2 sbn1 sbn2 n a}
-                      }
                       s {
                         e i {}
+                      }
+                      i {
+                        e s {x ibx1 ibx2 sbn1 sbn2 n a}
                       }
                       """);
     }
@@ -199,7 +199,7 @@ public class OptimizerTest {
                       "}",
               """
                       i {
-                        e s {x ib3x ib2x ib1x sb1n sb2n sb3n n a}
+                        e s {x ib2x ib3x ib1x sb1n sb3n sb2n n a}
                       }
                       s {
                         e i {}
@@ -319,10 +319,10 @@ public class OptimizerTest {
                       i {
                         e s {a}
                       }
-                      s {
+                      s2 {
                         e i {}
                       }
-                      s2 {
+                      s {
                         e i {}
                       }
                       """
@@ -365,12 +365,9 @@ public class OptimizerTest {
                       Fsm: TwoCoinTurnstile
                       Actions:Turnstile
                       {
-                        Alarming {
-                          Reset Locked {alarmOff lock}
-                        }
-                        FirstCoin {
-                          Pass Alarming {alarmOn}
-                          Coin Unlocked {unlock}
+                        Unlocked {
+                          Pass Locked {lock}
+                          Coin Unlocked {thankyou}
                           Reset Locked {lock}
                         }
                         Locked {
@@ -378,10 +375,13 @@ public class OptimizerTest {
                           Coin FirstCoin {}
                           Reset Locked {lock}
                         }
-                        Unlocked {
-                          Pass Locked {lock}
-                          Coin Unlocked {thankyou}
+                        FirstCoin {
+                          Pass Alarming {alarmOn}
+                          Coin Unlocked {unlock}
                           Reset Locked {lock}
+                        }
+                        Alarming {
+                          Reset Locked {alarmOff lock}
                         }
                       }
                       """));

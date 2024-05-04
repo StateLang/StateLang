@@ -305,6 +305,36 @@ public class SemanticAnalyzerTest {
       assertThat(errors, not(hasItems(new AnalysisError(INCONSISTENT_ABSTRACTION, "cas"))));
       assertThat(errors, hasItems(new AnalysisError(INCONSISTENT_ABSTRACTION, "ias")));
     }
+
+    @Test
+    public void warnIfImplicitSuperState() throws Exception {
+      List<AnalysisError> errors = produceAst("" +
+              "FSM: f Actions: act Initial: i " +
+              "{" +
+              "  (s) >n <t e0 - - " +
+              "  (m) >u e1 - - " +
+              "  a:m:s e3 d - " +
+              "  d:m:s e2 a - " +
+              "  i:s e4 d -" +
+              "}"
+      ).warnings;
+      assertThat(errors, hasItems(new AnalysisError(IMPLICIT_SUPER_STATE, "m:s")));
+    }
+
+    @Test
+    public void warnIfRedundantSuperState() throws Exception {
+      List<AnalysisError> errors = produceAst("" +
+              "FSM: f Actions: act Initial: i " +
+              "{" +
+              "  (s) >n <t e0 - - " +
+              "  (m):s >u e1 - - " +
+              "  a:m:s e3 d - " +
+              "  d:m:s e2 a - " +
+              "  i:s e4 d -" +
+              "}"
+      ).warnings;
+      assertThat(errors, hasItems(new AnalysisError(REDUNDANT_SUPER_STATE, "a,d:s")));
+    }
   } // Warnings
 
   public class Lists {
@@ -415,11 +445,11 @@ public class SemanticAnalyzerTest {
                           e s {}
                         }
 
-                        (b2) {
+                        (b2) :b1 {
                           e s {}
                         }
 
-                        s :b1 :b2 {
+                        s :b2 {
                           e1 s {a}
                           e2 s {a}
                         }
@@ -484,14 +514,14 @@ public class SemanticAnalyzerTest {
                       Actions: Turnstile
                       FSM: OneCoinTurnstile
                       Initial: Locked{
-                        Locked {
-                          Coin Unlocked {alarmOff unlock}
-                          Pass Locked {alarmOn}
-                        }
-
                         Unlocked {
                           Coin Unlocked {thankyou}
                           Pass Locked {lock}
+                        }
+                        
+                        Locked {
+                          Coin Unlocked {alarmOff unlock}
+                          Pass Locked {alarmOn}
                         }
                       }
                       """));
@@ -541,15 +571,15 @@ public class SemanticAnalyzerTest {
                           Reset Locked {lock alarmOff}
                         }
 
-                        Locked {
-                          Pass Alarming {alarmOn}
-                          Coin FirstCoin {}
-                          Reset Locked {lock alarmOff}
-                        }
-
                         Unlocked {
                           Pass Locked {lock}
                           Coin Unlocked {thankyou}
+                          Reset Locked {lock alarmOff}
+                        }
+                        
+                        Locked {
+                          Pass Alarming {alarmOn}
+                          Coin FirstCoin {}
                           Reset Locked {lock alarmOff}
                         }
                       }
@@ -589,31 +619,213 @@ public class SemanticAnalyzerTest {
                       Actions: Turnstile
                       FSM: TwoCoinTurnstile
                       Initial: Locked{
-                        Alarming :Base <alarmOn >alarmOff {
-                          null Alarming {}
-                        }
-
                         (Base) {
                           Reset Locked {lock}
                         }
-
-                        FirstCoin :Base {
-                          Pass Alarming {}
-                          Coin Unlocked {unlock}
+                                            
+                        Unlocked :Base {
+                          Pass Locked {lock}
+                          Coin Unlocked {thankyou}
                         }
-
+                                            
                         Locked :Base {
                           Pass Alarming {}
                           Coin FirstCoin {}
                         }
-
-                        Unlocked :Base {
-                          Pass Locked {lock}
-                          Coin Unlocked {thankyou}
+                                            
+                        FirstCoin :Base {
+                          Pass Alarming {}
+                          Coin Unlocked {unlock}
+                        }
+                                            
+                        Alarming :Base <alarmOn >alarmOff {
+                          null Alarming {}
                         }
                       }
                       """));
     }
 
+    @Test
+    public void complexInheritance() throws Exception {
+      SemanticStateMachine ast = produceAst(
+              """
+                      Actions: Complex
+                      FSM: Complex
+                      Initial: n{
+                        j <jn >jx {
+                        }
+                        c <cn >cx {
+                          ec l a1
+                        }
+                        d {
+                        }
+                        f {
+                        }
+                        y <yn >yx {
+                          ey f ay
+                        }
+                        u <un >ux{
+                          eu d au
+                        }
+                        v {
+                          ev b av
+                        }
+                        s <sn >sx {
+                          es z as2
+                        }
+                        s3 :s1 :x :j {
+                          es3 q as3
+                        }
+                        s2 : s1 :y {
+                          es2 s3 as2
+                        }
+                        s1 :x :c :j <n1 >x1 {
+                        }
+                        x :j :c <xn >xx {
+                        }
+                        q :x <qn >qx{
+                          eq l aq
+                        }
+                        a :c :m {
+                          ea b aa
+                        }
+                        n :m :c {
+                          en a an
+                        }
+                        m :c <mn >mx {
+                          em f {am1 am2}
+                        }
+                        b: c {
+                          eb r {ab1 ab2}
+                        }
+                        r :s :c {
+                          er i ar
+                        }
+                        i :c :s {
+                          ei g ai
+                          ei2 s2 ai2
+                        }
+                        g :c :y {
+                          eg w ag
+                        }
+                        w :y {
+                          ew d aw
+                          ew2 k aw2
+                        }
+                        k :y :u :v {
+                          ek s2 ak
+                        }
+                        l :v {
+                          el q al
+                        }
+                        z :v {
+                          ez l a2
+                        }
+                      }
+                 """
+      );
+      assertThat(ast.toString(), equalTo(
+              """
+                      Actions: Complex
+                      FSM: Complex
+                      Initial: n{
+                        s2 {
+                          es2 s3 {yx as2}
+                          ey f {x1 xx jx cx yx ay}
+                          ec l {x1 xx jx cx yx a1}
+                        }
+                      
+                        k {
+                          ek s2 {ux ak}
+                          ev b {yx ux av}
+                          eu d {yx ux au}
+                          ey f {yx ux ay}
+                        }
+                      
+                        g {
+                          eg w {cx ag}
+                          ey f {cx yx ay}
+                          ec l {cx yx a1}
+                        }
+                      
+                        c <cn >cx {
+                          ec l {a1}
+                        }
+                      
+                        s :c <sn >sx {
+                          es z {as2}
+                        }
+                      
+                        r :s {
+                          er i {ar}
+                        }
+                      
+                        i :s {
+                          ei g {yn ai}
+                          ei2 s2 {yn jn xn n1 ai2}
+                        }
+                      
+                        m :c <mn >mx {
+                          em f {am1 am2}
+                        }
+                      
+                        n :m {
+                          en a {an}
+                        }
+                      
+                        a :m {
+                          ea b {aa}
+                        }
+                      
+                        j :c <jn >jx {
+                        }
+                       
+                        x :j <xn >xx {
+                        }
+                       
+                        s1 :x <n1 >x1 {
+                        }
+                       
+                        s3 :s1 {
+                          es3 q {as3}
+                        }
+                       
+                        q :x <qn >qx {
+                          eq l {aq}
+                        }
+                      
+                        b :c {
+                          eb r {ab1 ab2}
+                        }
+                      
+                        y <yn >yx {
+                          ey f {ay}
+                        }
+                      
+                        w :y {
+                          ew d {aw}
+                          ew2 k {un aw2}
+                        }
+                      
+                        v {
+                          ev b {av}
+                        }
+                       
+                        z :v {
+                          ez l {a2}
+                        }
+                       
+                        l :v {
+                          el q {al}
+                        }
+                       
+                        f {
+                        }
+                       
+                        d {
+                        }
+                      }
+                      """));
+    }
   }
 }

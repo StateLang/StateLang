@@ -19,7 +19,7 @@ public class SemanticAnalyzer {
     analyzeHeaders(fsm);
     checkSemanticValidity(fsm);
     produceSemanticStateMachine(fsm);
-    return semanticStateMachine;
+    return new InheritanceTreeSimplifier(semanticStateMachine).simplify();
   }
 
   private void analyzeHeaders(FsmSyntax fsm) {
