@@ -256,7 +256,7 @@ The _less-than_ (`<`) character denote an _entry-action_.  It is invoked wheneve
 
 In the above example, notice that nearly all the actions have been restated as _entry-_ and _exit-actions_.  You may find that this makes the state machine more readable.  
 
-The _Entry-_ and _Exit-actions_ of superstates are inherited by their derivative states.
+The _Entry-_ and _Exit-actions_ of superstates are inherited by their derivative states for all transitions **excpet** those that lead to a state that has the same super state.
 
 ### Semantic Differences with _Entry-_ and _Exit-actions_.
 Note also that there is a slight semantic difference between the last two examples.  If we are in the `Locked` state, and we get a `Reset` event, then the `lock` action will be invoked even though we are already in the locked state.  This is because _every_ transition invokes all the _exit-_ and _entry-actions_, regardless of whether the state is actually changing.  Thus, when we are in the `Unlocked` state, and we get a `Coin` event, even though we stay in the `Unlocked` state, the `unlock` action will be invoked.
