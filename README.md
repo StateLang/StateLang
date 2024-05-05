@@ -5,11 +5,12 @@
 SMC is a Java application that translates a state transition table into a program that implements the described state machine.  Output languages include Java, C, and C++.  Adding other languages is trivial.
 
 ### Command Line
-`java -jar smc.jar -l <language> -o <directory> -f <flags>`
+`java -jar smc.jar -l <language> -o <directory> -f <flags> <input-file>`
 
  * `<language>` is either `C`, `Cpp`, or `Java`.  
  * `<directory>` is the output directory.  Your new state machine will be written there.
  * `<flags>` currently for Java only.  `package:package_name` will put the appropriate `package` statement in the generated code.
+ * `<input-file>` is the input .sm file.
 
 ### Syntax
 The syntax for the state transition table is based on a simple state transition table.  Here is a straightforward example that describes the logic of a subway turnstile.  `turnstile.sm`:
