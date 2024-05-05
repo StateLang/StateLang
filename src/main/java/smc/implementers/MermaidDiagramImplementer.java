@@ -3,12 +3,14 @@ package smc.implementers;
 import smc.generators.diagramGenerator.DiagramNode;
 import smc.generators.diagramGenerator.DiagramNodeVisitor;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
 import java.util.StringJoiner;
 
-public class MermaidImplementer implements DiagramNodeVisitor {
-	private StringBuilder output = new StringBuilder();
+public class MermaidDiagramImplementer implements DiagramNodeVisitor {
+	private final StringBuilder output = new StringBuilder();
+
+	public MermaidDiagramImplementer(Map<String, String> flags) {
+	}
 
 	public String getOutput() {
 		return output.toString();
