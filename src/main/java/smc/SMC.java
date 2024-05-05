@@ -38,9 +38,9 @@ public class SMC {
   private static class SmcCompiler {
     private final String[] args;
     private final Args argParser;
+    Map<String, String> flags = new HashMap<>();
     private String outputDirectory = null;
     private String language = "Java";
-    Map<String, String> flags = new HashMap<>();
 
     public SmcCompiler(String[] args, Args argParser) {
       this.args = args;
@@ -53,17 +53,45 @@ public class SMC {
       FsmSyntax fsm = compile(getSourceCode());
       int syntaxErrorCount = reportSyntaxErrors(fsm);
 
-      if (syntaxErrorCount == 0)
+      if (syntaxErrorCount == 0) if (flags.containsKey("isOptimized") && flags.get("isOptimized").equals("false")) {
+        generateNonOptimizedCode(analyze(fsm));
+      } else {
         generateCode(optimize(fsm));
+      }
+    }
+
+    private void generateNonOptimizedCode(SemanticStateMachine ast) throws IOException {
+      String generatorClassName = String.format("smc.generators.%sCodeGenerator", language);
+      CodeGenerator generator = createNonOptimizedGenerator(generatorClassName, ast, outputDirectory, flags);
+      generator.generate();
+    }
+
+    private CodeGenerator createNonOptimizedGenerator(String generatorClassName, SemanticStateMachine ast, String outputDirectory, Map<String, String> flags) {
+      try {
+        Class<?> generatorClass = Class.forName(generatorClassName);
+        Constructor<?> constructor = generatorClass.getConstructor(SemanticStateMachine.class, String.class, Map.class);
+        return (CodeGenerator) constructor.newInstance(ast, outputDirectory, flags);
+      } catch (ClassNotFoundException e) {
+        System.out.printf("The class %s was not found.\n", generatorClassName);
+        System.exit(0);
+      } catch (NoSuchMethodException e) {
+        System.out.printf("Appropriate constructor for %s not found", generatorClassName);
+        System.exit(0);
+      } catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
+        e.printStackTrace();
+        System.exit(0);
+      }
+      return null;
+    }
+
+    private SemanticStateMachine analyze(FsmSyntax fsm) {
+      return new SemanticAnalyzer().analyze(fsm);
     }
 
     private void extractCommandLineArguments() {
-      if (argParser.has('o'))
-        outputDirectory = argParser.getString('o');
-      if (argParser.has('l'))
-        language = argParser.getString('l');
-      if (argParser.has('f'))
-        flags = argParser.getMap('f');
+      if (argParser.has('o')) outputDirectory = argParser.getString('o');
+      if (argParser.has('l')) language = argParser.getString('l');
+      if (argParser.has('f')) flags = argParser.getMap('f');
     }
 
     private FsmSyntax compile(String smContent) {
@@ -83,9 +111,7 @@ public class SMC {
 
     private int reportSyntaxErrors(FsmSyntax fsm) {
       int syntaxErrorCount = fsm.errors.size();
-      System.out.printf(
-              "Compiled with %d syntax error%s.%n",
-        syntaxErrorCount, (syntaxErrorCount == 1 ? "" : "s"));
+      System.out.printf("Compiled with %d syntax error%s.%n", syntaxErrorCount, (syntaxErrorCount == 1 ? "" : "s"));
 
       for (FsmSyntax.SyntaxError error : fsm.errors)
         System.out.println(error.toString());
@@ -93,8 +119,7 @@ public class SMC {
     }
 
     private OptimizedStateMachine optimize(FsmSyntax fsm) {
-      SemanticStateMachine ast = new SemanticAnalyzer().analyze(fsm);
-      return new Optimizer().optimize(ast);
+      return new Optimizer().optimize(analyze(fsm));
     }
 
     private void generateCode(OptimizedStateMachine optimizedStateMachine) throws IOException {
@@ -103,10 +128,7 @@ public class SMC {
       generator.generate();
     }
 
-    private CodeGenerator createGenerator(String generatorClassName,
-                                          OptimizedStateMachine optimizedStateMachine,
-                                          String outputDirectory,
-                                          Map<String, String> flags) {
+    private CodeGenerator createGenerator(String generatorClassName, OptimizedStateMachine optimizedStateMachine, String outputDirectory, Map<String, String> flags) {
       try {
         Class<?> generatorClass = Class.forName(generatorClassName);
         Constructor<?> constructor = generatorClass.getConstructor(OptimizedStateMachine.class, String.class, Map.class);

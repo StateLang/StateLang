@@ -6,10 +6,12 @@ public interface DiagramNode {
   void accept(DiagramNodeVisitor visitor);
 
   class FSMNode implements DiagramNode {
+		public String initialState;
     public List<StateNode> stateNodes;
     public List<TransitionNode> transitionNodes;
 
-    public FSMNode(List<StateNode> stateNodes, List<TransitionNode> transitionNodes) {
+    public FSMNode(String initialState, List<StateNode> stateNodes, List<TransitionNode> transitionNodes) {
+			this.initialState = initialState;
       this.stateNodes = stateNodes;
       this.transitionNodes = transitionNodes;
     }
