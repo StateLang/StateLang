@@ -1,8 +1,7 @@
 package smc.generators;
 
 import smc.OptimizedStateMachine;
-import smc.generators.nestedSwitchCaseGenerator.NSCGenerator;
-import smc.generators.nestedSwitchCaseGenerator.NSCNodeVisitor;
+import smc.semanticAnalyzer.SemanticStateMachine;
 
 import java.io.IOException;
 import java.nio.file.FileSystems;
@@ -10,7 +9,8 @@ import java.nio.file.Path;
 import java.util.Map;
 
 public abstract class CodeGenerator {
-  protected final OptimizedStateMachine optimizedStateMachine;
+  protected OptimizedStateMachine optimizedStateMachine;
+  protected SemanticStateMachine semanticStateMachine;
   protected final String outputDirectory;
   protected final Map<String, String> flags;
 
@@ -18,6 +18,14 @@ public abstract class CodeGenerator {
                        String outputDirectory,
                        Map<String, String> flags) {
     this.optimizedStateMachine = optimizedStateMachine;
+    this.outputDirectory = outputDirectory;
+    this.flags = flags;
+  }
+
+  public CodeGenerator(SemanticStateMachine semanticStateMachine,
+                       String outputDirectory,
+                       Map<String, String> flags) {
+    this.semanticStateMachine = semanticStateMachine;
     this.outputDirectory = outputDirectory;
     this.flags = flags;
   }
@@ -40,8 +48,6 @@ public abstract class CodeGenerator {
   }
 
   protected abstract void generate(boolean isOptimized);
-
-  protected abstract NSCNodeVisitor getImplementer();
 
   protected abstract void writeFiles() throws IOException;
 }

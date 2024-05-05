@@ -5,7 +5,7 @@ import java.util.*;
 public class SemanticStateMachine {
   public List<AnalysisError> errors = new ArrayList<>();
   public List<AnalysisError> warnings = new ArrayList<>();
-  public SortedMap<String, SemanticState> states = new TreeMap<>();
+  public Map<String, SemanticState> states = new TreeMap<>();
   public Set<String> events = new HashSet<>();
   public Set<String> actions = new HashSet<>();
   public SemanticState initialState;
@@ -123,6 +123,9 @@ public class SemanticStateMachine {
       INCONSISTENT_ABSTRACTION,
       STATE_ACTIONS_MULTIPLY_DEFINED,
       CONFLICTING_SUPERSTATES,
+      IMPLICIT_SUPER_STATE,
+      REDUNDANT_SUPER_STATE,
+      SUPER_STATES_INTERSECTION
     }
 
     private final ID id;
@@ -157,5 +160,14 @@ public class SemanticStateMachine {
     public String event;
     public SemanticState nextState;
     public List<String> actions = new ArrayList<>();
+
+    public SemanticTransition(SemanticTransition st) {
+      this.event = st.event;
+      this.nextState = st.nextState;
+      this.actions.addAll(st.actions);
+    }
+
+    public SemanticTransition() {
+    }
   }
 }

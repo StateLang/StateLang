@@ -93,10 +93,11 @@ public class OptimizerTest {
         "" +
           "{i e i a1}",
 
-        "" +
-          "i {\n" +
-          "  e i {a1}\n" +
-          "}\n");
+              """
+                      i {
+                        e i {a1}
+                      }
+                      """);
         assertThat(optimizedStateMachine.transitions, hasSize(1));
 
     }
@@ -106,7 +107,11 @@ public class OptimizerTest {
     @Test
     public void entryFunctionsAdded() throws Exception {
       assertOptimization(
-              "{  i e s a1  i e2 s a2  s <n1 <n2 e i -}",
+              "{  " +
+                      "i e s a1  " +
+                      "i e2 s a2  " +
+                      "s <n1 <n2 e i -" +
+                      "}",
               """
                       i {
                         e s {n1 n2 a1}
@@ -127,14 +132,15 @@ public class OptimizerTest {
           "  i e2 s a2" +
           "  s e i -" +
           "}",
-        "" +
-          "i {\n" +
-          "  e s {x2 x1 a1}\n" +
-          "  e2 s {x2 x1 a2}\n" +
-          "}\n" +
-          "s {\n" +
-          "  e i {}\n" +
-          "}\n");
+              """
+                      i {
+                        e s {x2 x1 a1}
+                        e2 s {x2 x1 a2}
+                      }
+                      s {
+                        e i {}
+                      }
+                      """);
     }
 
     @Test
@@ -148,11 +154,11 @@ public class OptimizerTest {
           "  s:sb <n e i -" +
           "}",
               """
-                      i {
-                        e s {x ibx1 ibx2 sbn1 sbn2 n a}
-                      }
                       s {
                         e i {}
+                      }
+                      i {
+                        e s {x ibx1 ibx2 sbn1 sbn2 n a}
                       }
                       """);
     }
@@ -160,7 +166,14 @@ public class OptimizerTest {
     @Test
     public void multipleSuperStateEntryAndExitActionsAreAdded() throws Exception {
       assertOptimization(
-              "{  (ib1) >ib1x - - -  (ib2) : ib1 >ib2x - - -  (sb1) <sb1n- - -  (sb2) :sb1 <sb2n- - -  i:ib2 >x e s a  s:sb2 <n e i -}",
+              "{  " +
+                      "(ib1) >ib1x - - -  " +
+                      "(ib2) : ib1 >ib2x - - -  " +
+                      "(sb1) <sb1n- - -  " +
+                      "(sb2) :sb1 <sb2n- - -  " +
+                      "i:ib2 >x e s a  " +
+                      "s:sb2 <n e i -" +
+                      "}",
               """
                       i {
                         e s {x ib2x ib1x sb1n sb2n n a}
@@ -174,13 +187,58 @@ public class OptimizerTest {
     @Test
     public void diamondSuperStateEntryAndExitActionsAreAdded() throws Exception {
       assertOptimization(
-              "{  (ib1) >ib1x - - -  (ib2) : ib1 >ib2x - - -  (ib3) : ib1 >ib3x - - -  (sb1) <sb1n - - -  (sb2) :sb1 <sb2n - - -  (sb3) :sb1 <sb3n - - -  i:ib2 :ib3 >x e s a  s :sb2 :sb3 <n e i -}",
+              "{  " +
+                      "(ib1) >ib1x - - -  " +
+                      "(ib2) : ib1 >ib2x - - -  " +
+                      "(ib3) : ib1 >ib3x - - -  " +
+                      "(sb1) <sb1n - - -  " +
+                      "(sb2) :sb1 <sb2n - - -  " +
+                      "(sb3) :sb1 <sb3n - - -  " +
+                      "i:ib2 :ib3 >x e s a  " +
+                      "s :sb2 :sb3 <n e i -" +
+                      "}",
               """
                       i {
-                        e s {x ib3x ib2x ib1x sb1n sb2n sb3n n a}
+                        e s {x ib2x ib3x ib1x sb1n sb3n sb2n n a}
                       }
                       s {
                         e i {}
+                      }
+                      """);
+    }
+
+    @Test
+    public void exitActionsOfSuperStateAreNotAddedIfSameSuperState() throws Exception {
+      assertOptimization(
+              "{" +
+                      "  (sb) >sbn1 >sbn2 - - -" +
+                      "  i:sb >x e s a" +
+                      "  s:sb >n e i -" +
+                      "}",
+              """
+                      s {
+                      e i {n}
+                      }
+                      i {
+                      e s {x a}
+                      }
+                      """);
+    }
+
+    @Test
+    public void entryActionsOfSuperStateAreNotAddedIfSameSuperState() throws Exception {
+      assertOptimization(
+              "{" +
+                      "  (sb) <sbn1 <sbn2 - - -" +
+                      "  i:sb <x e s a" +
+                      "  s:sb <n e i -" +
+                      "}",
+              """
+                      s {
+                        e i {x}
+                      }
+                      i {
+                        e s {n a}
                       }
                       """);
     }
@@ -196,14 +254,15 @@ public class OptimizerTest {
           "  i:b e s a" +
           "  s e i -" +
           "}",
-        "" +
-          "i {\n" +
-          "  e s {a}\n" +
-          "  be s {ba}\n" +
-          "}\n" +
-          "s {\n" +
-          "  e i {}\n" +
-          "}\n"
+              """
+                      i {
+                        e s {a}
+                        be s {ba}
+                      }
+                      s {
+                        e i {}
+                      }
+                      """
       );
     }
 
@@ -220,16 +279,17 @@ public class OptimizerTest {
           "  i:b2 e s a" +
           "  s e i -" +
           "}",
-        "" +
-          "i {\n" +
-          "  e s {a}\n" +
-          "  b2e s {b2a}\n" +
-          "  b1e1 s {b1a1}\n" +
-          "  b1e2 s {b1a2}\n" +
-          "}\n" +
-          "s {\n" +
-          "  e i {}\n" +
-          "}\n"
+              """
+                      i {
+                        e s {a}
+                        b2e s {b2a}
+                        b1e1 s {b1a1}
+                        b1e2 s {b1a2}
+                      }
+                      s {
+                        e i {}
+                      }
+                      """
       );
     }
 
@@ -243,15 +303,16 @@ public class OptimizerTest {
           "  i:b1 :b2 e s a" +
           "  s e i -" +
           "}",
-        "" +
-          "i {\n" +
-          "  e s {a}\n" +
-          "  b2e s {b2a}\n" +
-          "  b1e s {b1a}\n" +
-          "}\n" +
-          "s {\n" +
-          "  e i {}\n" +
-          "}\n"
+              """
+                      i {
+                        e s {a}
+                        b2e s {b2a}
+                        b1e s {b1a}
+                      }
+                      s {
+                        e i {}
+                      }
+                      """
       );
     }
 
@@ -294,10 +355,10 @@ public class OptimizerTest {
                       i {
                         e s {a}
                       }
-                      s {
+                      s2 {
                         e i {}
                       }
-                      s2 {
+                      s {
                         e i {}
                       }
                       """
@@ -322,11 +383,42 @@ public class OptimizerTest {
                       }
                       """
       );
-
     }
   }// Super State Transitions
 
   public class AcceptanceTests {
+    @Test
+    public void exitAndEntryActionsSuperState() throws Exception {
+      assertOptimization(
+              "{" +
+                      "  (sb) <sbn >sbx - - - " +
+                      "  (ib) <ibn >ibx - - - " +
+                      "  s0:sb <s0n >s0x { " +
+                      "     e0 s a0 " +
+                      "  } " +
+                      "  i:ib <in >ix { " +
+                      "     e3 s a2 " +
+                      "     e2 i1 a3 " +
+                      "  } " +
+                      "  i1:ib <i1n >i1x e1 s0 a1 " +
+                      "  s:sb <sn >sx - - - " +
+                      " } ",
+              """
+                      s0 {
+                      e0 s {s0x sn a0}
+                      }
+                      s {
+                      }
+                      i1 {
+                      e1 s0 {i1x ibx sbn s0n a1}
+                      }
+                      i {
+                      e3 s {ix ibx sbn sn a2}
+                      e2 i1 {ix i1n a3}
+                      }
+                      """);
+    }
+
     @Test
     public void turnstyle3() throws Exception {
       OptimizedStateMachine sm = produceStateMachine(
@@ -341,12 +433,9 @@ public class OptimizerTest {
                       Fsm: TwoCoinTurnstile
                       Actions:Turnstile
                       {
-                        Alarming {
-                          Reset Locked {alarmOff lock}
-                        }
-                        FirstCoin {
-                          Pass Alarming {alarmOn}
-                          Coin Unlocked {unlock}
+                        Unlocked {
+                          Pass Locked {lock}
+                          Coin Unlocked {thankyou}
                           Reset Locked {lock}
                         }
                         Locked {
@@ -354,10 +443,13 @@ public class OptimizerTest {
                           Coin FirstCoin {}
                           Reset Locked {lock}
                         }
-                        Unlocked {
-                          Pass Locked {lock}
-                          Coin Unlocked {thankyou}
+                        FirstCoin {
+                          Pass Alarming {alarmOn}
+                          Coin Unlocked {unlock}
                           Reset Locked {lock}
+                        }
+                        Alarming {
+                          Reset Locked {alarmOff lock}
                         }
                       }
                       """));
