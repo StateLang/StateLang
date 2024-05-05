@@ -9,34 +9,30 @@ public class OptimizedDiagramGenerator {
 	private List<DiagramNode.StateNode> stateNodes;
 	private List<DiagramNode.TransitionNode> transitionNodes;
 
-	public OptimizedDiagramGenerator() {
+	public DiagramNode generate(OptimizedStateMachine sm) {
 		stateNodes = new ArrayList<>();
 		transitionNodes = new ArrayList<>();
-	}
-
-	public DiagramNode generate(OptimizedStateMachine sm) {
 		prepareFsm(sm);
-		return makeFsmNode();
+		return makeFsmNode(sm);
 	}
 
 	private void prepareFsm(OptimizedStateMachine sm) {
-		addTransition("[*]", "", sm.header.initial, new ArrayList<>());
 		for (String state : sm.states) {
 			addState(state);
-			addTransitions(sm, state);
+			addStateTransitions(sm, state);
 		}
 	}
 
 	private void addState(String state) {
 		stateNodes.add(new DiagramNode.StateNode(
-				state,
-				"",
-				new ArrayList<>(),
-				new ArrayList<>()
+			state,
+			"",
+			new ArrayList<>(),
+			new ArrayList<>()
 		));
 	}
 
-	private void addTransitions(OptimizedStateMachine sm, String state) {
+	private void addStateTransitions(OptimizedStateMachine sm, String state) {
 		for (OptimizedStateMachine.Transition tr : sm.transitions)
 			if (tr.currentState.equals(state)) {
 				for (OptimizedStateMachine.SubTransition subTr : tr.subTransitions)
@@ -46,14 +42,14 @@ public class OptimizedDiagramGenerator {
 
 	private void addTransition(String currentState, String event, String nextState, List<String> actions) {
 		transitionNodes.add(new DiagramNode.TransitionNode(
-				currentState,
-				event,
-				nextState,
-				actions
+			currentState,
+			event,
+			nextState,
+			actions
 		));
 	}
 
-	private DiagramNode.FSMNode makeFsmNode() {
-		return new DiagramNode.FSMNode(stateNodes, transitionNodes);
+	private DiagramNode.FSMNode makeFsmNode(OptimizedStateMachine sm) {
+		return new DiagramNode.FSMNode(sm.header.initial, stateNodes, transitionNodes);
 	}
 }
