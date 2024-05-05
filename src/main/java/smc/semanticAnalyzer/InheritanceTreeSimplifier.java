@@ -155,7 +155,10 @@ public class InheritanceTreeSimplifier {
   public InheritanceTreeSimplifier(SemanticStateMachine ast) {
     this.ast = ast;
     tree = new InheritanceTree(makeParentChildrenMap());
+    simplifyInheritanceTree();
+  }
 
+  private void simplifyInheritanceTree() {
     Map<String, Boolean> isRootSuperState = makeIsRootSuperStateMap();
     Utilities.sortMapByValue(tree.root.children, Comparator.comparingInt(node -> node.children.size()));
     List<Map.Entry<String, InheritanceTree.InheritanceNode>> rootSuperStateslist = new ArrayList<>(tree.root.children.size());
@@ -171,10 +174,14 @@ public class InheritanceTreeSimplifier {
     restStateslist.addAll(rootSuperStateslist);
     substituteAll(restStateslist, removed, isRootSuperState);
 
+    handleIntersectionStates();
+    dfsSortStatesInAST();
+  }
+
+  private void handleIntersectionStates() {
     constructIntersectionStatesMap();
     warnAndEliminateIntersections();
     addSimplifiedSuperStateIfAnyForEachState();
-    dfsSortStatesInAST();
   }
 
   public SemanticStateMachine simplify() {
@@ -339,7 +346,7 @@ public class InheritanceTreeSimplifier {
         Iterator<InheritanceTree.InheritanceNode> it = path.descendingIterator();
         InheritanceTree.InheritanceNode state = it.next();
         tree.root.children.put(state.name, state);
-        do
+        do {
           if (state.children.size() == 0) {
             String stateName = state.name;
             state = it.next();
@@ -347,7 +354,7 @@ public class InheritanceTreeSimplifier {
           } else {
             break;
           }
-        while (it.hasNext());
+        } while (it.hasNext());
         path.removeFirst();
         if (!path.isEmpty())
           path.removeLast();
