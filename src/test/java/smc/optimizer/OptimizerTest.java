@@ -216,12 +216,12 @@ public class OptimizerTest {
                       "  s:sb >n e i -" +
                       "}",
               """
-                      i {
-                        e s {x a}
-                      }
                       s {
-                        e i {n}
-                      }     
+                      e i {n}
+                      }
+                      i {
+                      e s {x a}
+                      }
                       """);
     }
 
@@ -234,11 +234,11 @@ public class OptimizerTest {
                       "  s:sb <n e i -" +
                       "}",
               """
-                      i {
-                        e s {n a}
-                      }
                       s {
                         e i {x}
+                      }
+                      i {
+                        e s {n a}
                       }
                       """);
     }
@@ -404,17 +404,17 @@ public class OptimizerTest {
                       "  s:sb <sn >sx - - - " +
                       " } ",
               """
-                      i {
-                        e3 s {ix ibx sbn sn a2}
-                        e2 i1 {ix i1n a3}
-                      }
-                      i1 {
-                        e1 s0 {i1x ibx sbn s0n a1}
+                      s0 {
+                      e0 s {s0x sn a0}
                       }
                       s {
                       }
-                      s0 {
-                        e0 s {s0x sn a0}
+                      i1 {
+                      e1 s0 {i1x ibx sbn s0n a1}
+                      }
+                      i {
+                      e3 s {ix ibx sbn sn a2}
+                      e2 i1 {ix i1n a3}
                       }
                       """);
     }
