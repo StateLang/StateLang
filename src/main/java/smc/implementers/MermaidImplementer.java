@@ -33,7 +33,7 @@ public class MermaidImplementer implements DiagramNodeVisitor {
 			output.append("\n}\n\n");
 		}
 		else if (!stateNode.entryActions.isEmpty() && !stateNode.exitActions.isEmpty()){
-			output.append(stateNode.name);
+			output.append(stateNode.name).append(": ").append(stateNode.name);
 			appendEntryAndExitActions(stateNode);
 			output.append("\n\n");
 		}
