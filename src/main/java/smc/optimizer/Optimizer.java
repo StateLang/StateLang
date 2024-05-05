@@ -50,7 +50,7 @@ public class Optimizer {
 
     private List<SemanticState> makeRootFirstHierarchyOfStates() {
       LinkedHashSet<SemanticState> hierarchy = new LinkedHashSet<>();
-      addAllStatesInHiearchyLeafFirst(currentState, hierarchy);
+      addAllStatesInHierarchyLeafFirst(currentState, hierarchy);
       List<SemanticState> superStates = new ArrayList<>(hierarchy);
       Collections.reverse(superStates);
       return superStates;
@@ -93,7 +93,7 @@ public class Optimizer {
 
       private void addEntryActions(SemanticState entryState) {
         LinkedHashSet<SemanticState> hierarchy = new LinkedHashSet<>();
-        addAllStatesInHiearchyLeafFirst(entryState, hierarchy);
+        addAllStatesInHierarchyLeafFirst(entryState, hierarchy);
         for (SemanticState superState : hierarchy)
           if (!isSuperStateOf(superState, currentState))
             subTransition.actions.addAll(superState.entryActions);
@@ -101,7 +101,7 @@ public class Optimizer {
 
       private void addExitActions(SemanticState exitState) {
         LinkedHashSet<SemanticState> hierarchy = new LinkedHashSet<>();
-        addAllStatesInHiearchyLeafFirst(exitState, hierarchy);
+        addAllStatesInHierarchyLeafFirst(exitState, hierarchy);
         List<SemanticState> superStates = new ArrayList<>(hierarchy);
         Collections.reverse(superStates);
         for (SemanticState superState : superStates)
@@ -110,15 +110,16 @@ public class Optimizer {
       }
     } // SubTransitionOptimizer
   } // StateOptimizer
+
   private boolean isSuperStateOf(SemanticState superState, SemanticState state) {
     LinkedHashSet<SemanticState> hierarchy = new LinkedHashSet<>();
-    addAllStatesInHiearchyLeafFirst(state, hierarchy);
+    addAllStatesInHierarchyLeafFirst(state, hierarchy);
     return hierarchy.contains(superState);
   }
   
-  private void addAllStatesInHiearchyLeafFirst(SemanticState state, LinkedHashSet<SemanticState> hierarchy) {
+  private void addAllStatesInHierarchyLeafFirst(SemanticState state, LinkedHashSet<SemanticState> hierarchy) {
     for (SemanticState superState : state.superStates)
-        addAllStatesInHiearchyLeafFirst(superState, hierarchy);
+        addAllStatesInHierarchyLeafFirst(superState, hierarchy);
     hierarchy.add(state);
   }
 
