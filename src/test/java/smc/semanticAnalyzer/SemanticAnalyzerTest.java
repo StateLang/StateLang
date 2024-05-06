@@ -21,6 +21,7 @@ import static smc.parser.FsmSyntax.Header;
 import static smc.parser.ParserEvent.EOF;
 import static smc.semanticAnalyzer.SemanticStateMachine.AnalysisError;
 import static smc.semanticAnalyzer.SemanticStateMachine.AnalysisError.ID.*;
+import static smc.semanticAnalyzer.SemanticStateMachine.AnalysisWarning.ID.*;
 
 @RunWith(HierarchicalContextRunner.class)
 public class SemanticAnalyzerTest {
@@ -301,14 +302,14 @@ public class SemanticAnalyzerTest {
   public class Warnings {
     @Test
     public void warnIfStateUsedAsBothAbstractAndConcrete() throws Exception {
-      List<AnalysisError> errors = produceAst("{(ias) e - - ias e - - (cas) e - -}").warnings;
-      assertThat(errors, not(hasItems(new AnalysisError(INCONSISTENT_ABSTRACTION, "cas"))));
-      assertThat(errors, hasItems(new AnalysisError(INCONSISTENT_ABSTRACTION, "ias")));
+      List<SemanticStateMachine.AnalysisWarning> warnings = produceAst("{(ias) e - - ias e - - (cas) e - -}").warnings;
+      assertThat(warnings, not(hasItems(new SemanticStateMachine.AnalysisWarning(INCONSISTENT_ABSTRACTION, "cas"))));
+      assertThat(warnings, hasItems(new SemanticStateMachine.AnalysisWarning(INCONSISTENT_ABSTRACTION, "ias")));
     }
 
     @Test
     public void warnIfImplicitSuperState() throws Exception {
-      List<AnalysisError> errors = produceAst("" +
+      List<SemanticStateMachine.AnalysisWarning> warnings = produceAst("" +
               "FSM: f Actions: act Initial: i " +
               "{" +
               "  (s) >n <t e0 - - " +
@@ -318,12 +319,12 @@ public class SemanticAnalyzerTest {
               "  i:s e4 d -" +
               "}"
       ).warnings;
-      assertThat(errors, hasItems(new AnalysisError(IMPLICIT_SUPER_STATE, "m:s")));
+      assertThat(warnings, hasItems(new SemanticStateMachine.AnalysisWarning(IMPLICIT_SUPERSTATE, "m:s")));
     }
 
     @Test
     public void warnIfRedundantSuperState() throws Exception {
-      List<AnalysisError> errors = produceAst("" +
+      List<SemanticStateMachine.AnalysisWarning> warnings = produceAst("" +
               "FSM: f Actions: act Initial: i " +
               "{" +
               "  (s) >n <t e0 - - " +
@@ -333,7 +334,7 @@ public class SemanticAnalyzerTest {
               "  i:s e4 d -" +
               "}"
       ).warnings;
-      assertThat(errors, hasItems(new AnalysisError(REDUNDANT_SUPER_STATE, "a,d:s")));
+      assertThat(warnings, hasItems(new SemanticStateMachine.AnalysisWarning(REDUNDANT_SUPERSTATE, "a,d:s")));
     }
   } // Warnings
 

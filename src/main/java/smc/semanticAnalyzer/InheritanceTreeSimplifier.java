@@ -5,7 +5,7 @@ import smc.Utilities;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static smc.semanticAnalyzer.SemanticStateMachine.AnalysisError.ID.*;
+import static smc.semanticAnalyzer.SemanticStateMachine.AnalysisWarning.ID.*;
 
 public class InheritanceTreeSimplifier {
   private static class InheritanceTree implements Iterable<InheritanceTree.InheritanceNode> {
@@ -219,11 +219,11 @@ public class InheritanceTreeSimplifier {
         if (!removed.contains(dst.name) && InheritanceTree.substituteIfSubset(src, dst)) {
           if (!src.children.isEmpty())
             ast.warnings.add(
-                isRootSuperState.get(src.name) ? new SemanticStateMachine.AnalysisError(
-                    IMPLICIT_SUPER_STATE,
+                isRootSuperState.get(src.name) ? new SemanticStateMachine.AnalysisWarning(
+                    IMPLICIT_SUPERSTATE,
                     src.name + ":" + dst.name
-                ) : new SemanticStateMachine.AnalysisError(
-                    REDUNDANT_SUPER_STATE,
+                ) : new SemanticStateMachine.AnalysisWarning(
+                    REDUNDANT_SUPERSTATE,
                     src.children
                         .values().stream()
                         .map(inheritanceNode -> inheritanceNode.name)
@@ -276,8 +276,8 @@ public class InheritanceTreeSimplifier {
     addAllSuperStateTransitions();
     for (SemanticStateMachine.SemanticState state : ast.states.values()) {
       if (intersectionHierarchies.containsKey(state.name)) {
-        ast.warnings.add(new SemanticStateMachine.AnalysisError(
-            SUPER_STATES_INTERSECTION, state.name
+        ast.warnings.add(new SemanticStateMachine.AnalysisWarning(
+            SUPERSTATES_INTERSECTION, state.name
         ));
         for (SemanticStateMachine.SemanticTransition transition : state.transitions)
           addSuperExitActions(state, transition);

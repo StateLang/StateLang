@@ -4,7 +4,7 @@ import java.util.*;
 
 public class SemanticStateMachine {
   public List<AnalysisError> errors = new ArrayList<>();
-  public List<AnalysisError> warnings = new ArrayList<>();
+  public List<AnalysisWarning> warnings = new ArrayList<>();
   public Map<String, SemanticState> states = new TreeMap<>();
   public Set<String> events = new HashSet<>();
   public Set<String> actions = new HashSet<>();
@@ -109,6 +109,43 @@ public class SemanticStateMachine {
     }
   }
 
+  public static class AnalysisWarning {
+    public enum ID {
+      INCONSISTENT_ABSTRACTION,
+      IMPLICIT_SUPERSTATE,
+      REDUNDANT_SUPERSTATE,
+      SUPERSTATES_INTERSECTION,
+      SUPERSTATE_TO_ITS_SUBSTATES_TRANSITION
+    }
+
+    private final ID id;
+    private Object extra;
+
+    public AnalysisWarning(ID id) {
+      this.id = id;
+    }
+
+    public AnalysisWarning(ID id, Object extra) {
+      this(id);
+      this.extra = extra;
+    }
+
+    public String toString() {
+      return String.format("Semantic Warning: %s(%s)", id.name(), extra);
+    }
+
+    public int hashCode() {
+      return Objects.hash(id, extra);
+    }
+
+    public boolean equals(Object obj) {
+      if (obj instanceof AnalysisWarning other)
+        return id == other.id && Objects.equals(extra, other.extra);
+
+      return false;
+    }
+  }
+
   public static class AnalysisError {
     public enum ID {
       NO_FSM,
@@ -120,12 +157,8 @@ public class SemanticStateMachine {
       UNUSED_STATE,
       DUPLICATE_TRANSITION,
       ABSTRACT_STATE_USED_AS_NEXT_STATE,
-      INCONSISTENT_ABSTRACTION,
       STATE_ACTIONS_MULTIPLY_DEFINED,
       CONFLICTING_SUPERSTATES,
-      IMPLICIT_SUPER_STATE,
-      REDUNDANT_SUPER_STATE,
-      SUPER_STATES_INTERSECTION
     }
 
     private final ID id;

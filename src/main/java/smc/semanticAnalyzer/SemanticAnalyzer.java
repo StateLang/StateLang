@@ -7,6 +7,8 @@ import java.util.*;
 import static smc.parser.FsmSyntax.*;
 import static smc.semanticAnalyzer.SemanticStateMachine.*;
 import static smc.semanticAnalyzer.SemanticStateMachine.AnalysisError.ID.*;
+import static smc.semanticAnalyzer.SemanticStateMachine.AnalysisWarning.ID.INCONSISTENT_ABSTRACTION;
+import static smc.semanticAnalyzer.SemanticStateMachine.AnalysisWarning.ID.SUPERSTATE_TO_ITS_SUBSTATES_TRANSITION;
 
 public class SemanticAnalyzer {
   private SemanticStateMachine semanticStateMachine;
@@ -192,7 +194,7 @@ public class SemanticAnalyzer {
     Set<String> abstractStates = findAbstractStates(fsm);
     for (Transition t : fsm.logic)
       if (!t.state.abstractState && abstractStates.contains(t.state.name))
-        semanticStateMachine.warnings.add(new AnalysisError(INCONSISTENT_ABSTRACTION, t.state.name));
+        semanticStateMachine.warnings.add(new AnalysisWarning(INCONSISTENT_ABSTRACTION, t.state.name));
   }
 
   private void checkForMultiplyDefinedStateActions(FsmSyntax fsm) {
@@ -316,8 +318,19 @@ public class SemanticAnalyzer {
           concreteState = state;
           transitionTuples = new HashMap<>();
           checkTransitionsForState(concreteState);
+        } else {
+          checkSuperStateToItsSubStatesTransition(state);
         }
       }
+    }
+
+    private void checkSuperStateToItsSubStatesTransition(SemanticState state) {
+      for (SemanticTransition t : state.transitions)
+        if (isSuperStateOf(state, t.nextState))
+          semanticStateMachine.warnings.add(new AnalysisWarning(
+              SUPERSTATE_TO_ITS_SUBSTATES_TRANSITION,
+              state.name + "->" + t.nextState.name
+          ));
     }
 
     private void checkTransitionsForState(SemanticState state) {
