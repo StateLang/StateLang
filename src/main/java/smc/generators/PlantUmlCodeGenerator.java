@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Map;
 
-public class PlantUmlCodeGenerator extends CodeGenerator{
+public class PlantUmlCodeGenerator extends CodeGenerator {
 	private final PlantUmlDiagramImplementer implementer;
 	private final String fsmName;
 
