@@ -2,14 +2,16 @@
 # SMC
 ## The State Machine Compiler
 
-SMC is a Java application that translates a state transition table into a program that implements the described state machine.  Output languages include Java, C, and C++.  Adding other languages is trivial.
+SMC is a Java application that translates a state transition table into a program that implements the described state machine.  Output languages include Java, C, C++, Mermaid, or PlantUML.  Adding other languages is trivial.
 
 ### Command Line
 `java -jar smc.jar -l <language> -o <directory> -f <flags> <input-file>`
 
  * `<language>` is either `C`, `Cpp`, or `Java`.  
  * `<directory>` is the output directory.  Your new state machine will be written there.
- * `<flags>` currently for Java only.  `package:package_name` will put the appropriate `package` statement in the generated code.
+ * `<flags>`
+ 	- `package:package_name`, currently for Java only, will put the appropriate `package` statement in the generated code.
+  	- `isOptimized:boolean`, currently for Mermaid and PlantUML, will generate either optimized, `true`, or non-optimized code, `false`.
  * `<input-file>` is the input .sm file.
 
 ### Syntax
@@ -303,15 +305,15 @@ The Backus-Naur form (BNF) of the SMC source code is:
     <logic> ::= "{" <transition>* "}"
     <transition> ::= <state-spec> <subtransition>
                  |   <state-spec> "{" <subtransition>* "}"
-    <state-spec> :== <state> <state-modifier>*	
+    <state-spec> ::= <state> <state-modifier>*	
     <state> ::= <name> | "(" <name> ")"	
-    <state-modifier> :== ":" <name>
+    <state-modifier> ::= ":" <name>
                      |   "<" <name>
                      |   ">" <name>
-    <subtransition> :: <event> <next-state> <action>
+    <subtransition> ::= <event> <next-state> <action>
     <action> ::= <name> | "{" <name>* "}" | "-"
     <next-state> ::= <state> | "-"
-    <event> :: <name> | "-"
+    <event> ::= <name> | "-"
 
 ### License
 This project is licensed under the [GNU Lesser General Public License version 2.1 (LGPL 2.1)](LICENSE).
