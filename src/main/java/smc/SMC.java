@@ -54,19 +54,19 @@ public class SMC {
       int syntaxErrorCount = reportSyntaxErrors(fsm);
 
       if (syntaxErrorCount == 0) if (flags.containsKey("isOptimized") && flags.get("isOptimized").equals("false")) {
-        generateNonOptimizedCode(analyze(fsm));
+        generateCode(analyze(fsm));
       } else {
         generateCode(optimize(fsm));
       }
     }
 
-    private void generateNonOptimizedCode(SemanticStateMachine ast) throws IOException {
+    private void generateCode(SemanticStateMachine ast) throws IOException {
       String generatorClassName = String.format("smc.generators.%sCodeGenerator", language);
-      CodeGenerator generator = createNonOptimizedGenerator(generatorClassName, ast, outputDirectory, flags);
+      CodeGenerator generator = createGenerator(generatorClassName, ast, outputDirectory, flags);
       generator.generate();
     }
 
-    private CodeGenerator createNonOptimizedGenerator(String generatorClassName, SemanticStateMachine ast, String outputDirectory, Map<String, String> flags) {
+    private CodeGenerator createGenerator(String generatorClassName, SemanticStateMachine ast, String outputDirectory, Map<String, String> flags) {
       try {
         Class<?> generatorClass = Class.forName(generatorClassName);
         Constructor<?> constructor = generatorClass.getConstructor(SemanticStateMachine.class, String.class, Map.class);
@@ -85,7 +85,24 @@ public class SMC {
     }
 
     private SemanticStateMachine analyze(FsmSyntax fsm) {
-      return new SemanticAnalyzer().analyze(fsm);
+      SemanticStateMachine sm = new SemanticAnalyzer().analyze(fsm);
+      reportSemanticErrors(sm);
+      reportSemanticWarnings(sm);
+      return sm;
+    }
+
+    private void reportSemanticErrors(SemanticStateMachine sm) {
+      System.out.printf("Compiled with %d semantic error%s.%n", sm.errors.size(), (sm.errors.size() == 1 ? "" : "s"));
+
+      for (SemanticStateMachine.AnalysisError error : sm.errors)
+        System.out.println(error.toString());
+    }
+
+    private void reportSemanticWarnings(SemanticStateMachine sm) {
+      System.out.printf("Compiled with %d semantic warning%s.%n", sm.warnings.size(), (sm.warnings.size() == 1 ? "" : "s"));
+
+      for (SemanticStateMachine.AnalysisWarning warning : sm.warnings)
+        System.out.println(warning.toString());
     }
 
     private void extractCommandLineArguments() {
