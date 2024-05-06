@@ -344,17 +344,17 @@ This is an abstract set of steps of how to achieve this:
 1. Build inheritance tree.
 2. Eliminate and warn for implicit super state.
 3. Eliminate and warn for super states intersection. 
-4. Sort the states as follows:
-   1. Ascending-ly from the ones that has lower super states to the
-      ones that have higher.
-   2. Put the abstract states at the end and sort them according to
-      no. 1.
+4. Sort the states from superstates to substates.
+
+### `DiagramNode`
+Using Composite Pattern:
+![DiagramNode](imgs/diagramnode.png)
 
 ## Implementation Plan
 **Phase 1**: Make `CodeGenerator` more abstract (i.e., implement
 code-style-agnostic feature).    
 **Phase 2**: Fix the entry- and exit-actions behaviour.  
-**Phase 3**: **Design** and implement `DiagramNode` and 
+**Phase 3**: Implement `DiagramNode` and 
 `DiagramNodeVisitor` according to PlantUML and Mermaid syntax.   
 **Phase 4**: Create `PlantUMLDiagramGenerator`, 
 `MermaidDiagramGenerator`, `OptimizedDiagramGenerator`, 
