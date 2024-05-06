@@ -30,25 +30,33 @@ public class MermaidDiagramImplementer implements DiagramNodeVisitor {
 			output.append("state ")
 					.append(stateNode.parentName)
 					.append(" {\n\t")
-					.append(stateNode.name).append(": ").append(stateNode.name);
+					.append(stateNode.name);
 			appendEntryAndExitActions(stateNode);
 			output.append("\n}\n\n");
-		}
-		else if (!stateNode.entryActions.isEmpty() && !stateNode.exitActions.isEmpty()){
-			output.append(stateNode.name).append(": ").append(stateNode.name);
+		} else if (!stateNode.entryActions.isEmpty() && !stateNode.exitActions.isEmpty()) {
+			output.append(stateNode.name);
 			appendEntryAndExitActions(stateNode);
 			output.append("\n\n");
 		}
 	}
 
 	private void appendEntryAndExitActions(DiagramNode.StateNode stateNode) {
+		if (!stateNode.entryActions.isEmpty() || !stateNode.exitActions.isEmpty())
+			output.append(": ")
+					  .append("<center style='border-bottom#58;solid 2px#59;margin-bottom#58;9px#59;padding-bottom#58;9px'>")
+					  .append(stateNode.name)
+					  .append("</center>");
+
 		if (!stateNode.entryActions.isEmpty()) {
-			output.append("\\nentry / ");
+			output.append("entry / ");
 			appendActions(stateNode.entryActions);
 		}
 
+		if (!stateNode.exitActions.isEmpty() && !stateNode.entryActions.isEmpty())
+			output.append("\\n");
+
 		if (!stateNode.exitActions.isEmpty()) {
-			output.append("\\nexit / ");
+			output.append("exit / ");
 			appendActions(stateNode.exitActions);
 		}
 	}
