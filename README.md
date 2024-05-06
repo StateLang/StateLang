@@ -2,12 +2,12 @@
 # SMC
 ## The State Machine Compiler
 
-SMC is a Java application that translates a state transition table into a program that implements the described state machine.  Output languages include Java, C, C++, Mermaid, or PlantUML.  Adding other languages is trivial.
+SMC is a Java application that translates a state transition table into a program that implements the described state machine.  Output languages include Java, C, C++, PlantUML, or Mermaid.  Adding other languages is trivial.
 
 ### Command Line
 `java -jar smc.jar -l <language> -o <directory> -f <flags> <input-file>`
 
- * `<language>` is either `C`, `Cpp`, or `Java`.  
+ * `<language>` is either `C`, `Cpp`, `Java`, `PlantUML`, or `Mermaid`.  
  * `<directory>` is the output directory.  Your new state machine will be written there.
  * `<flags>`
  	- `package:package_name`, currently for Java only, will put the appropriate `package` statement in the generated code.
