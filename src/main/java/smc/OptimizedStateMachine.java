@@ -1,5 +1,8 @@
 package smc;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -64,4 +67,54 @@ public class OptimizedStateMachine {
     public String nextState;
     public List<String> actions = new ArrayList<>();
   }
+	
+	public void build_optimized_tree() {
+		StringBuilder tree = new StringBuilder();
+		tree.append("<FSM>\n");
+		tree.append("├── <header>\n");
+		tree.append("│   ├── <fsm> \"").append(header.fsm).append("\"\n");
+		tree.append("│   ├── <initial> \"").append(header.initial).append("\"\n");
+		tree.append("│   └── <actions> \"").append(header.actions).append("\"\n");
+		tree.append("├── \"{\"\n");
+		tree.append("├── <transitions>*\n");
+		
+		for (Transition transition : transitions) {
+			tree.append(formatTransitionTree(transition));
+		}
+		tree.append("└── \"}\"\n");
+		
+		try (BufferedWriter writer = new BufferedWriter(new
+				FileWriter(SMC.SmcCompiler.outputDirectory + "/parse_tree.md"))) {
+			writer.write("```\n");
+			writer.write(tree.toString());
+			writer.write("\n```\n");
+		} catch (IOException e) {
+			System.err.println("Error writing parse_tree.md file: " + e.getMessage());
+		}
+	}
+	
+	private String formatTransitionTree(Transition transition) {
+		StringBuilder transitionTree = new StringBuilder();
+		
+		transitionTree.append("│   ├── <transition>\n");
+		transitionTree.append("│   │   ├── <currentState> \"").append(transition.currentState).append("\"\n");
+		
+		transitionTree.append("│   │   ├── \"{\"\n");
+		for (SubTransition subtransition : transition.subTransitions) {
+			transitionTree.append("│   │   ├── <subTransition>\n");
+			transitionTree.append("│   │   │   ├── <event> \"").append(subtransition.event).append("\"\n");
+			transitionTree.append("│   │   │   ├── <nextState> \"").append(subtransition.nextState).append("\"\n");
+			transitionTree.append("│   │   │   └── <actions>\n");
+			
+			transitionTree.append("│   │   │       ├── \"{\n");
+			for (String action : subtransition.actions) {
+				transitionTree.append("│   │   │       ├── <action> \"").append(action).append("\"\n");
+			}
+			transitionTree.append("│   │   │       └── \"}\n");
+		}
+		
+		transitionTree.append("│   │   └── \"}\n");
+		
+		return transitionTree.toString();
+	}
 }

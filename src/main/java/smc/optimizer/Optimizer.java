@@ -17,9 +17,12 @@ public class Optimizer {
     this.semanticStateMachine = ast;
     optimizedStateMachine = new OptimizedStateMachine();
     addHeader(ast);
-    addLists();
-    addTransitions();
-    return optimizedStateMachine;
+	  addLists();
+	  addTransitions();
+		// TODO: Build Optimized Tree
+		// ast.build_semantic_tree();
+		// optimizedStateMachine.build_optimized_tree();
+	  return optimizedStateMachine;
   }
 
   private void addTransitions() {
