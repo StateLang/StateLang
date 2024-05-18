@@ -326,7 +326,7 @@ public class SemanticAnalyzer {
 
     private void checkSuperStateToItsSubStatesTransition(SemanticState state) {
       for (SemanticTransition t : state.transitions)
-        if (isSuperStateOf(state, t.nextState))
+        if (isSuperStateOf(state, t.nextState) && state != t.nextState)
           semanticStateMachine.warnings.add(new AnalysisWarning(
               SUPERSTATE_TO_ITS_SUBSTATES_TRANSITION,
               state.name + "->" + t.nextState.name
