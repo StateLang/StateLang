@@ -35,11 +35,11 @@ public class SMC {
     }
   }
 
-  private static class SmcCompiler {
+  public static class SmcCompiler {
     private final String[] args;
     private final Args argParser;
     Map<String, String> flags = new HashMap<>();
-    private String outputDirectory = null;
+    public static String outputDirectory = null;
     private String language = "Java";
 
     public SmcCompiler(String[] args, Args argParser) {
@@ -51,6 +51,8 @@ public class SMC {
       extractCommandLineArguments();
 
       FsmSyntax fsm = compile(getSourceCode());
+	    fsm.build_parse_tree();
+
       int syntaxErrorCount = reportSyntaxErrors(fsm);
 
       if (syntaxErrorCount == 0) if (flags.containsKey("isOptimized") && flags.get("isOptimized").equals("false")) {
@@ -86,6 +88,8 @@ public class SMC {
 
     private SemanticStateMachine analyze(FsmSyntax fsm) {
       SemanticStateMachine sm = new SemanticAnalyzer().analyze(fsm);
+	    // TODO: Build Semantic Tree
+			// sm.build_semantic_tree();
       reportSemanticErrors(sm);
       reportSemanticWarnings(sm);
       return sm;

@@ -1,5 +1,10 @@
 package smc.semanticAnalyzer;
 
+import smc.SMC;
+
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 
 public class SemanticStateMachine {
@@ -203,4 +208,56 @@ public class SemanticStateMachine {
     public SemanticTransition() {
     }
   }
+	
+	public void build_semantic_tree() {
+		StringBuilder tree = new StringBuilder();
+		
+		tree.append("<FSM>\n");
+		tree.append("├── <header>\n");
+		tree.append("│    ├── <fsmName> \"").append(fsmName).append("\"\n");
+		tree.append("│    └── <initialState> \"").append(initialState.name).append("\"\n");
+		tree.append("│    ├── <actionClass> \"").append(actionClass).append("\"\n");
+		
+		tree.append("├── <states>\n");
+		for (SemanticState state : states.values()) {
+			tree.append(formatStateTree(state));
+		}
+		
+		try (BufferedWriter writer = new BufferedWriter(new
+				FileWriter(SMC.SmcCompiler.outputDirectory + "/parse_tree.md"))) {
+			writer.write("```\n");
+			writer.write(tree.toString());
+			writer.write("\n```\n");
+		} catch (IOException e) {
+			System.err.println("Error writing parse_tree.md file: " + e.getMessage());
+		}
+	}
+	
+	private String formatStateTree(SemanticState state) {
+		StringBuilder stateTree = new StringBuilder();
+		
+		stateTree.append("│    ├── <state> \"").append(state.name).append("\"\n");
+		stateTree.append("│    │   ├── <entryActions> \"").append(String.join(", ", state.entryActions)).append("\"\n");
+		stateTree.append("│    │   ├── <exitActions> \"").append(String.join(", ", state.exitActions)).append("\"\n");
+		stateTree.append("│    │   ├── <abstractState> \"").append(state.abstractState).append("\"\n");
+		stateTree.append("│    │   ├── \"{\"\n");
+		
+		if (!state.superStates.isEmpty()) {
+			stateTree.append("│    │   ├── <superStates>\n");
+			for (SemanticState superState : state.superStates) {
+				stateTree.append("│    │   │   ├── <superState> \"").append(superState.name).append("\"\n");
+			}
+		}
+		
+		stateTree.append("│    │   ├── <transitions>\n");
+		for (SemanticTransition transition : state.transitions) {
+			stateTree.append("│    │   │   ├── <transition>\n");
+			stateTree.append("│    │   │   │   ├── <event> \"").append(transition.event).append("\"\n");
+			stateTree.append("│    │   │   │   ├── <nextState> \"").append(transition.nextState.name).append("\"\n");
+			stateTree.append("│    │   │   │   └── <actions> \"").append(String.join(", ", transition.actions)).append("\"\n");
+		}
+		stateTree.append("│    │   └── \"}\n");
+		
+		return stateTree.toString();
+	}
 }
