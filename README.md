@@ -1,13 +1,11 @@
-## The Care and Feeding of 
-# SMC
-## The State Machine Compiler
+# StateLang
 
-SMC is a Java application that translates a state transition table into a program that implements the described state machine.  Output languages include Java, C, C++, PlantUML, or Mermaid.  Adding other languages is trivial.
+StateLang is a Java application that translates a state transition table into a program that implements the described state machine.  Output languages include Java, C, C++, PlantUML, or Mermaid.  Adding other languages is trivial.
 
 ### Command Line
 `java -jar smc.jar -l <language> -o <directory> -f <flags> <input-file>`
 
- * `<language>` is either `C`, `Cpp`, `Java`, `PlantUML`, or `Mermaid`.  
+ * `<language>` is either `C`, `Cpp`, `Java`, `PlantUml`, or `Mermaid`.  
  * `<directory>` is the output directory.  Your new state machine will be written there.
  * `<flags>`
  	- `package:package_name`, currently for Java only, will put the appropriate `package` statement in the generated code.
@@ -26,7 +24,7 @@ The syntax for the state transition table is based on a simple state transition 
       Unlocked  Pass    Locked      lock
     }
 
-When this is run through SMC it produces the source code for a state machine named `Turnstile`.  That machine starts in the `Locked` state, and follows the following logic:
+When this is run through StateLang it produces the source code for a state machine named `Turnstile`.  That machine starts in the `Locked` state, and follows the following logic:
 
 * Given we are in the `Locked` state, when we get a `Coin` event, then we transition to the `Unlocked` state and invoke the `unlock` action.
 * Given we are in the `Locked` state, when we get a `Pass` event, then we stay in the `Locked` state and invoke the `alarm` action.
@@ -34,9 +32,9 @@ When this is run through SMC it produces the source code for a state machine nam
 * GIven we are in the `Unlocked` state, when we get a `Pass` event, then we transition to the `Locked` state and invoke the `lock` action. 
 
 ### Opacity
-One of the goals of SMC is to produce code that the programmer never needs to look at, and does not check in to source code control.  It is intended that SMC will generate the appropriate code during the pre-compile phase of your build.  
+One of the goals of StateLang is to produce code that the programmer never needs to look at, and does not check in to source code control.  It is intended that StateLang will generate the appropriate code during the pre-compile phase of your build.  
 
-The output of SMC is two sets of functions: The _Event_ functions and the _Actions_ functions.  For most languages these functions will be arranged into an abstract class in which the _Event_ functions are public, and the _Action_ functions are protected and abstract.  
+The output of StateLang is two sets of functions: The _Event_ functions and the _Actions_ functions.  For most languages these functions will be arranged into an abstract class in which the _Event_ functions are public, and the _Action_ functions are protected and abstract.  
 
 The programmer derives an implementation class from the generated class, and implements all the action functions.  The programmer then creates an instance of the implementation class and invokes the appropriate event functions as those events occur.  The generated code will make sure that the appropriate action functions are called in response to those events.
 
@@ -65,7 +63,7 @@ Here is a UML diagram that depicts the situation.  The programmer writes the `us
               +-------------------------+
 
 ### Generated Java Code
-Here is the Java code that SMC will generate for this state machine.  It is an abstract class that provides a simple nested switch/case implementation, a set of public event functions, and a set of protected abstract methods for the action functions.
+Here is the Java code that StateLang will generate for this state machine.  It is an abstract class that provides a simple nested switch/case implementation, a set of public event functions, and a set of protected abstract methods for the action functions.
 
 ```java
     public abstract class Turnstile {
@@ -123,7 +121,7 @@ It is often more convenient to express the abstract _Action_ functions as an int
       ...
     }
 
-The programer will write the `TurnstileActions` interface to declare all the _Action_ functions.  SMC will generate code that implements that interface.   Here how this looks in UML:
+The programer will write the `TurnstileActions` interface to declare all the _Action_ functions.  StateLang will generate code that implements that interface.   Here how this looks in UML:
 
               +-------------------------+
               |      <<interface>>      |
@@ -229,7 +227,7 @@ A state with a super-state _inherits_ all the transitions of that super-state.  
 
     state : superstate1 : superstate2 {...
 
-Super-states do not have to be abstract.  A state can derive from any other state, whether abstract or not.  However, if we mark a state as abstract, then SMC will ensure that it is never used as the target of a transition.  The state machine will never be in that state.  
+Super-states do not have to be abstract.  A state can derive from any other state, whether abstract or not.  However, if we mark a state as abstract, then StateLang will ensure that it is never used as the target of a transition.  The state machine will never be in that state.  
 
 ### Comments
 A comment is any string beginning with two slashes, and ending with a line-end.  They can be placed at the start of a line as in the example above; or they can be placed at the end of a line.
@@ -265,7 +263,7 @@ The _Entry-_ and _Exit-actions_ of superstates are inherited by their derivative
 Note also that there is a slight semantic difference between the last two examples.  If we are in the `Locked` state, and we get a `Reset` event, then the `lock` action will be invoked even though we are already in the locked state.  This is because _every_ transition invokes all the _exit-_ and _entry-actions_, regardless of whether the state is actually changing.  Thus, when we are in the `Unlocked` state, and we get a `Coin` event, even though we stay in the `Unlocked` state, the `unlock` action will be invoked.
 
 ### Internal Structure.
-The internal structure of SMC is a simple traditional compiler.  Here is a picture:
+The internal structure of StateLang is a simple traditional compiler.  Here is a picture:
 
     +-------+    +--------+    +----------+    +-----------+    +-----------+    +--------------+
     | Lexer |--->| Parser |--->| Semantic |--->| Optimizer |--->| Generator |--->| Implementing |
