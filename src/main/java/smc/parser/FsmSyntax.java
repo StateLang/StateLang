@@ -1,5 +1,8 @@
 package smc.parser;
-
+import smc.SMC;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -192,5 +195,81 @@ public class FsmSyntax {
   public String getError() {
     return formatErrors();
   }
-
+	
+	
+	public void build_parse_tree() {
+		StringBuilder tree = new StringBuilder();
+		tree.append("<FSM>\n");
+		tree.append("├── <header>*\n");
+		
+		for (int i = 0; i < headers.size(); i++) {
+			Header header = headers.get(i);
+			tree.append("│   ├── <header>\n");
+			tree.append("│   │   ├── <name> \"").append(header.name).append("\"\n");
+			tree.append("│   │   ├── \":\"\n");
+			tree.append("│   │   └── <name> \"").append(header.value).append("\"\n");
+		}
+		
+		tree.append("├── <logic>\n");
+		tree.append("│   ├── \"{\"\n");
+		tree.append("│   ├── <transition>*\n");
+		
+		for (Transition transition : logic) {
+			tree.append(formatTransitionTree(transition));
+		}
+		
+		tree.append("│   └── \"}\"\n");
+		try (BufferedWriter writer = new BufferedWriter(new
+				FileWriter(SMC.SmcCompiler.outputDirectory + "/parse_tree.md"))) {
+			writer.write("```\n");
+			writer.write(tree.toString());
+			writer.write("\n```\n");
+		} catch (IOException e) {
+			System.err.println("Error writing parse_tree.md file: " + e.getMessage());
+		}
+	}
+	
+	private String formatTransitionTree(Transition transition) {
+		StringBuilder transitionTree = new StringBuilder();
+		
+		transitionTree.append("│   │   ├── <transition>\n");
+		transitionTree.append("│   │   │   ├── <state-spec>\n");
+		transitionTree.append("│   │   │   │   ├── <state> \"").append(transition.state.abstractState ? "(" + transition.state.name + ")" : transition.state.name).append("\"\n");
+		
+		for (String superState : transition.state.superStates) {
+			transitionTree.append("│   │   │   │   ├── <state-modifier> \":").append(superState).append("\"\n");
+		}
+		
+		for (String entryAction : transition.state.entryActions) {
+			transitionTree.append("│   │   │   │   ├── <state-modifier> \"<").append(entryAction).append("\"\n");
+		}
+		
+		for (String exitAction : transition.state.exitActions) {
+			transitionTree.append("│   │   │   │   ├── <state-modifier> \">").append(exitAction).append("\"\n");
+		}
+		
+		transitionTree.append("│   │   │   └── \"{\"\n");
+		
+		for (SubTransition subtransition : transition.subTransitions) {
+			if (!(subtransition.event == null && subtransition.nextState == null && subtransition.actions.isEmpty())) {
+				transitionTree.append("│   │   │       ├── <subtransition>\n");
+				transitionTree.append("│   │   │       │   ├── <event> \"").append(subtransition.event).append("\"\n");
+				transitionTree.append("│   │   │       │   ├── <next-state> \"").append(subtransition.nextState).append("\"\n");
+				
+				if (subtransition.actions.size() == 1) {
+					transitionTree.append("│   │   │       │   └── <action> \"").append(subtransition.actions.get(0)).append("()\"\n");
+				} else {
+					transitionTree.append("│   │   │       │   └── <action> \"{");
+					for (String action : subtransition.actions) {
+						transitionTree.append(action).append("() ");
+					}
+					transitionTree.append("}\"\n");
+				}
+			}
+		}
+		
+		transitionTree.append("│   │   │   └── \"}\"\n");
+		
+		return transitionTree.toString();
+	}
 }
