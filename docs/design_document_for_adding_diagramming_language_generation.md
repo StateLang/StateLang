@@ -11,6 +11,19 @@ We want to add diagramming language support for StateLang (aka, cc_smc),
 the available diagramming languages for now are Mermaid and PlantUML. In 
 this document we will discuss each and their features and how to generate
 code in these languages.
+> I find diagrams like this to be immensely useful for figuring out state machines for sub-systems
+whose behavior is well known. On the other hand, most systems that are amenable to FSMs 
+do not have behaviors that are well known in advance. Rather the behaviors
+of most systems grow, and evolve over time. Diagrams aren’t a conducive medium for
+systems that must change frequently. Issues of layout and space intrude upon the content
+of the diagrams. This intrusion can sometimes prevent designers from making needed
+changes to a design. The spectre of reformatting the diagram prevents them from adding a
+needed class, or state and causes them to use a substandard solution that doesn’t impact
+the diagram layout.   
+> — Uncle Bob, UML for Java Programmers  
+
+Diagramming languages solve the rotten diagram problem.
+
 
 ## Perquisites
 1. Skim the document before fulfill the below perquisites, so
